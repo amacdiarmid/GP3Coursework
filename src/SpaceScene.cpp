@@ -117,43 +117,17 @@ void SpaceScene::createScene()
 	TestSphereID = bulPhys->CreateSphereShape(5.0);
 	missileBoxID = bulPhys->CreateBoxShape(btVector3(5, 3, 3));
 
-	//create cubemap texture
-	skyMaterial = new CubeTexture("skybox");
-	string skyBoxFront = ASSET_PATH + TEXTURE_PATH + "/skybox/Space_front.png";
-	string skyBoxBack = ASSET_PATH + TEXTURE_PATH + "/skybox/Space_back.png";
-	string skyBoxLeft = ASSET_PATH + TEXTURE_PATH + "/skybox/Space_left.png";
-	string skyBoxRight = ASSET_PATH + TEXTURE_PATH + "/skybox/Space_right.png";
-	string skyBoxTop = ASSET_PATH + TEXTURE_PATH + "/skybox/Space_top.png";
-	string skyBoxBottom = ASSET_PATH + TEXTURE_PATH + "/skybox/Space_bottom.png";
-	skyMaterial->loadSkyBoxTextures(skyBoxFront, skyBoxBack, skyBoxLeft, skyBoxRight, skyBoxTop, skyBoxBottom);
+	//asterois values;
+	startingAsteroidCount = 150;
+	curAsteroidCount = 0;
+	TotalAsteroidMeshCount = 0;
+	TotalAsteroidTextureCount = 0;
 
-	//create objects
-	objects.insert(pair<string, Object*>("teapot", new Object("teapot")));
-	objects["teapot"]->createBuffer("/heroWalker.FBX");
 
-	//objects.insert(pair<string, Object*>("cubeMesh", new Cube("cubeMesh")));
-	//objects["cubeMesh"]->createBuffer();
-
-	//create textures
-	textures.insert(pair<string, Texture*>("sun", new Texture("sun")));
-	textures["sun"]->createTexture("/SunTexture.png");
-
-	//create shaders
-	Shader * currentShader = new Shader("main");
-	currentShader->attatchVertexShader("/final Shaders/textureSpecularVS.glsl");
-	currentShader->attatchFragmentShader("/final Shaders/textureSpecularFS.glsl");
-	currentShader->createShader();
-	shaders.insert(pair<string, Shader*>("main", currentShader));
-
-	shaders.insert(pair<string, Shader*>("toonMaterial", new Shader("toonMaterial")));
-	shaders["toonMaterial"]->attatchVertexShader("/specularVS.glsl");
-	shaders["toonMaterial"]->attatchFragmentShader("/toonSpecularFS.glsl");
-	shaders["toonMaterial"]->createShader();
-
-	shaders.insert(pair<string, Shader*>("sky", new Shader("sky")));
-	shaders["sky"]->attatchVertexShader("/skyboxVS.glsl");
-	shaders["sky"]->attatchFragmentShader("/skyboxFS.glsl");
-	shaders["sky"]->createShader();
+	setUpCubemap();
+	setUpMeshes();
+	setUpTextures();
+	setUpShaders();
 
 	//create player/debug cam
 	input = new GamePlayerController();
@@ -164,30 +138,34 @@ void SpaceScene::createScene()
 
 	//loadScene(worldObject, name, this);
 
-	//uncomment for world reset
+	//current object for easy parent
 	GameObject *tempObj;
 
 	//player
 	worldObject->addChild(new GameObject("player", worldObject, input));
 	GameInputComponent *inputComp = new GameInputComponent(worldObject->getChild("player"));
-	inputComp->assignMissile(objects["teapot"], shaders["main"], textures["sun"], missileBoxID, bulPhys);
+	inputComp->assignMissile(objects["missile"], shaders["main"], textures["missile"], missileBoxID, bulPhys);
 	worldObject->getChild("player")->addComponent(inputComp);
 
-	//teapot room node done
+	//scene node
 	worldObject->addChild(new GameObject("SpaceNode", worldObject));	//creating node
 	tempObj = worldObject->getChild("SpaceNode"); //setting temp object for easy access
 	tempObj->setPosition(vec3(0, 0, 0));
 	tempObj->setActive(true);
 
-	tempObj->addChild(new GameObject("sun", tempObj, objects["teapot"], textures["sun"], shaders["main"]));	//creating object
-	tempObj->getChild("sun")->addComponent(new Renderer(tempObj->getChild("sun")));	//adding render comp
-	tempObj->getChild("sun")->addComponent(new physicsComponent(tempObj->getChild("sun"), bulPhys->CreatePhysBox(btVector3(0, 100, 0), 1, TestSphereID))); //adding physics comp
-	tempObj->getChild("sun")->setPosition(vec3(0, 100, 0));	//changing postiion
-	tempObj->getChild("sun")->setRotation(vec3(0, 0, 0));	//change rotaion
-	tempObj->getChild("sun")->setScale(vec3(1, 1, 1));	//change scele
-	tempObj->getChild("sun")->setForceRender(true);
+	// example object
+	string testName = "test";
+	tempObj->addChild(new GameObject(testName, tempObj, objects["TestTeapot"], textures["TestSun"], shaders["main"]));	//creating object
+	tempObj->getChild(testName)->addComponent(new Renderer(tempObj->getChild(testName)));	//adding render comp
+	tempObj->getChild(testName)->addComponent(new physicsComponent(tempObj->getChild(testName), bulPhys->CreatePhysBox(btVector3(0, 100, 0), 1, TestSphereID))); //adding physics comp
+	tempObj->getChild(testName)->setPosition(vec3(0, 100, 0));	//changing postiion
+	tempObj->getChild(testName)->setRotation(vec3(0, 0, 0));	//change rotaion
+	tempObj->getChild(testName)->setScale(vec3(1, 1, 1));	//change scele
+	tempObj->getChild(testName)->setForceRender(true);
 
-																//set skybox
+	spawnAsteroids(tempObj);
+
+	//set skybox
 	//worldObject->addChild(new GameObject("skybox", worldObject, objects["cubeMesh"], skyMaterial, shaders["main"]));
 	//worldObject->getChild("skybox")->addComponent(RENDER_COMPONENT);
 	//worldObject->getChild("skybox")->setForceRender(true);
@@ -244,10 +222,19 @@ void SpaceScene::UpdateLightPerspMVP()
 
 void SpaceScene::destroyScene()
 {
-	shaders["main"]->cleanUp();
-	shaders["sky"]->cleanUp();
-	objects["teapot"]->cleanUp();
-	//objects["cubeMesh"]->cleanUp();
+	for (auto const& x : objects)
+	{
+		x.second->cleanUp();
+	}
+	
+	for (auto const& x : textures)
+	{
+		x.second->cleanUp();
+	}
+	for (auto const& x :shaders)
+	{
+		x.second->cleanUp();
+	}
 }
 
 void SpaceScene::SceneLoop()
@@ -255,6 +242,121 @@ void SpaceScene::SceneLoop()
 	windowLoop();
 	update();
 	render();
+}
+
+void SpaceScene::setUpShaders()
+{
+	//create shaders
+	Shader * currentShader = new Shader("main");
+	currentShader->attatchVertexShader("/final Shaders/textureSpecularVS.glsl");
+	currentShader->attatchFragmentShader("/final Shaders/textureSpecularFS.glsl");
+	currentShader->createShader();
+	shaders.insert(pair<string, Shader*>("main", currentShader));
+
+	shaders.insert(pair<string, Shader*>("toonMaterial", new Shader("toonMaterial")));
+	shaders["toonMaterial"]->attatchVertexShader("/specularVS.glsl");
+	shaders["toonMaterial"]->attatchFragmentShader("/toonSpecularFS.glsl");
+	shaders["toonMaterial"]->createShader();
+
+	shaders.insert(pair<string, Shader*>("sky", new Shader("sky")));
+	shaders["sky"]->attatchVertexShader("/skyboxVS.glsl");
+	shaders["sky"]->attatchFragmentShader("/skyboxFS.glsl");
+	shaders["sky"]->createShader();
+}
+
+void SpaceScene::setUpMeshes()
+{
+	//create objects
+	objects.insert(pair<string, Object*>("TestWalker", new Object("TestWalker")));
+	objects["TestWalker"]->createBuffer("/heroWalker.FBX");
+
+	objects.insert(pair<string, Object*>("TestTeapot", new Object("TestTeapot")));
+	objects["TestTeapot"]->createBuffer("/utah-teapot.FBX");
+
+	for (size_t i = 1; i < 6; i++)
+	{
+		string name = "asteroid" + to_string(i);
+
+		objects.insert(pair<string, Object*>(name, new Object(name)));
+		objects[name]->createBuffer("/" + name + ".FBX");
+
+		TotalAsteroidMeshCount++;
+	}
+
+	objects.insert(pair<string, Object*>("missile", new Object("missile")));
+	objects["missile"]->createBuffer("/AGM-114HellFire.FBX");
+
+	objects.insert(pair<string, Object*>("ship", new Object("ship")));
+	objects["ship"]->createBuffer("/Ender Battlecruiser.FBX");
+
+	//for cubemap
+	//objects.insert(pair<string, Object*>("cubeMesh", new Cube("cubeMesh")));
+	//objects["cubeMesh"]->createBuffer();
+}
+
+void SpaceScene::setUpTextures()
+{
+	//create textures
+	textures.insert(pair<string, Texture*>("TestSun", new Texture("TestSun")));
+	textures["TestSun"]->createTexture("/SunTexture.png");
+
+	textures.insert(pair<string, Texture*>("TestWalker", new Texture("TestWalker")));
+	textures["TestWalker"]->createTexture("/unsung-map.jpg");
+
+	for (size_t i = 1; i < 16; i++)
+	{
+		string name = "AM" + to_string(i);
+
+		textures.insert(pair<string, Texture*>(name, new Texture(name)));
+		textures[name]->createTexture("/" + name + ".jpg");
+
+		TotalAsteroidTextureCount++;
+	}
+
+	textures.insert(pair<string, Texture*>("missile", new Texture("missile")));
+	textures["missile"]->createTexture("/HellFireTexture.png");
+
+	textures.insert(pair<string, Texture*>("GreenShip", new Texture("GreenShip")));
+	textures["GreenShip"]->createTexture("/bc-grey-green.png");
+
+	textures.insert(pair<string, Texture*>("RedShip", new Texture("RedShip")));
+	textures["RedShip"]->createTexture("/bc-grey-red.png");
+
+}
+
+void SpaceScene::setUpCubemap()
+{
+	//create cubemap texture
+	skyMaterial = new CubeTexture("skybox");
+	string skyBoxFront = ASSET_PATH + TEXTURE_PATH + "/skybox/Space_front.png";
+	string skyBoxBack = ASSET_PATH + TEXTURE_PATH + "/skybox/Space_back.png";
+	string skyBoxLeft = ASSET_PATH + TEXTURE_PATH + "/skybox/Space_left.png";
+	string skyBoxRight = ASSET_PATH + TEXTURE_PATH + "/skybox/Space_right.png";
+	string skyBoxTop = ASSET_PATH + TEXTURE_PATH + "/skybox/Space_top.png";
+	string skyBoxBottom = ASSET_PATH + TEXTURE_PATH + "/skybox/Space_bottom.png";
+	skyMaterial->loadSkyBoxTextures(skyBoxFront, skyBoxBack, skyBoxLeft, skyBoxRight, skyBoxTop, skyBoxBottom);
+}
+
+void SpaceScene::spawnAsteroids(GameObject *Node)
+{
+	//spawn asteroids in random locations maybe do a check to see if they are inside each other but maybe not
+
+	for (int i = 0; i < startingAsteroidCount; i++)
+	{
+		string name = "ast" + to_string(curAsteroidCount);
+
+		vec3 startingPos = vec3(rand() % 250 + -250, rand() % 250 + -250, rand() % 250 + -250);
+		
+		Node->addChild(new GameObject(name, Node, objects["asteroid" + to_string(rand() % TotalAsteroidMeshCount + 1)], textures["AM" + to_string(rand() % TotalAsteroidTextureCount + 1)], shaders["main"]));	//creating object
+		Node->getChild(name)->addComponent(new Renderer(Node->getChild(name)));	//adding render comp
+		Node->getChild(name)->addComponent(new physicsComponent(Node->getChild(name), bulPhys->CreatePhysBox(btVector3(startingPos.x, startingPos.y, startingPos.y), 1, TestSphereID))); //adding physics comp
+		Node->getChild(name)->setPosition(startingPos);	//changing postiion
+		Node->getChild(name)->setRotation(vec3(0, 0, 0));	//change rotaion
+		Node->getChild(name)->setScale(vec3(1, 1, 1));	//change scele
+		Node->getChild(name)->setForceRender(true);
+
+		curAsteroidCount++;
+	}
 }
 
 GameObject *SpaceScene::getGameObject(string command)

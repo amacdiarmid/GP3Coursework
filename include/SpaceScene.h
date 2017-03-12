@@ -25,8 +25,16 @@ public:
 	void update() override;
 	void render() override;
 	void createScene() override;
+	void UpdateLightPerspMVP();
 	void destroyScene() override;
 	void SceneLoop() override;
+
+	void setUpShaders();
+	void setUpMeshes();
+	void setUpTextures();
+	void setUpCubemap();
+
+	void spawnAsteroids(GameObject *Node);
 
 	//debug stuff
 	GameObject *getGameObject(string command) override;
@@ -41,18 +49,6 @@ public:
 	void mouseMove(SDL_MouseMotionEvent motion) override;
 	void mouseDown(SDL_MouseButtonEvent button) override {};
 	void mouseUp(SDL_MouseButtonEvent button)override {};
-
-	//ShadowMapping
-	void ShadowFramebuffer();
-	void BuildQuad();
-	void ShadowMapPass();
-	void UpdateLightPerspMVP();
-	void RenderQuad();
-
-	//Post Processing
-	void CreateFrameBuffer();
-	void CleanUpFrameBuffer();
-	void RenderPostQuad();
 
 private:
 	//ShadowMapping 1st pass
@@ -132,6 +128,11 @@ private:
 	//physic shape ID
 	int TestSphereID;
 	int missileBoxID;
+
+	int startingAsteroidCount;
+	int curAsteroidCount;
+	int TotalAsteroidMeshCount;
+	int TotalAsteroidTextureCount;
 };
 
 #endif
