@@ -114,8 +114,51 @@ void SpaceScene::createScene()
 	//bullet physics
 	bulPhys = new BulletPhys();
 	bulPhys->CreateGroundPlane();
-	TestSphereID = bulPhys->CreateSphereShape(5.0);
-	missileBoxID = bulPhys->CreateBoxShape(btVector3(5, 3, 3));
+	AsteroidSphereID = bulPhys->CreateSphereShape(10.0);
+	missileBoxID = bulPhys->CreateBoxShape(btVector3(50, 10, 10));
+
+	//audio
+	ALenum  error;
+
+	audio = new OpenAL();
+	if ((error = alGetError()) != AL_NO_ERROR)
+	{
+		cout << alGetString(error) << endl;
+	}
+	BackgroundAudio = new AudioClip();
+	if ((error = alGetError()) != AL_NO_ERROR)
+	{
+		cout << alGetString(error) << endl;
+	}
+	BackgroundAudio->CreateBuffer("/SpacialHarvest.wav");
+	if ((error = alGetError()) != AL_NO_ERROR)
+	{
+		cout << alGetString(error) << endl;
+	}
+	
+	ALfloat listenerPos[] = { 0.0,0.0,0.0 };
+	ALfloat listenerVel[] = { 0.0,0.0,0.0 };
+	ALfloat listenerOri[] = { 0.0,0.0,-1.0, 0.0,1.0,0.0 };
+
+	// Position ... 
+	alListenerfv(AL_POSITION, listenerPos);
+	if ((error = alGetError()) != AL_NO_ERROR)
+	{
+		cout << alGetString(error) << endl;
+	}
+	// Velocity ... 
+	alListenerfv(AL_VELOCITY, listenerVel);
+	if ((error = alGetError()) != AL_NO_ERROR)
+	{
+		cout << alGetString(error) << endl;
+	}
+	// Orientation ... 
+	alListenerfv(AL_ORIENTATION, listenerOri);
+	if ((error = alGetError()) != AL_NO_ERROR)
+	{
+		cout << alGetString(error) << endl;
+	}
+
 
 	//asterois values;
 	startingAsteroidCount = 150;
@@ -157,8 +200,10 @@ void SpaceScene::createScene()
 	string testName = "test";
 	tempObj->addChild(new GameObject(testName, tempObj, objects["TestTeapot"], textures["TestSun"], shaders["main"]));	//creating object
 	tempObj->getChild(testName)->addComponent(new Renderer(tempObj->getChild(testName)));	//adding render comp
-	tempObj->getChild(testName)->addComponent(new physicsComponent(tempObj->getChild(testName), bulPhys->CreatePhysBox(btVector3(0, 100, 0), 1, TestSphereID))); //adding physics comp
-	tempObj->getChild(testName)->setPosition(vec3(0, 100, 0));	//changing postiion
+	physicsComponent* phys = new physicsComponent(tempObj->getChild(testName), bulPhys->CreatePhysBox(btVector3(0, 0, 0), 1, AsteroidSphereID));
+	AllPhysComps.push_back(phys);
+	tempObj->getChild(testName)->addComponent(phys); //adding physics comp
+	tempObj->getChild(testName)->setPosition(vec3(0, 0, 0));	//changing postiion
 	tempObj->getChild(testName)->setRotation(vec3(0, 0, 0));	//change rotaion
 	tempObj->getChild(testName)->setScale(vec3(1, 1, 1));	//change scele
 	tempObj->getChild(testName)->setForceRender(true);
@@ -179,7 +224,7 @@ void SpaceScene::createScene()
 	while ((err = glGetError()) != GL_NO_ERROR)
 	{
 		//Process/log the error.
-		cout << "error in creating scene " << err << endl;
+		cout << "error in creating audio " << err << endl;
 	}
 
 	materialShininess = 100;
@@ -235,6 +280,7 @@ void SpaceScene::destroyScene()
 	{
 		x.second->cleanUp();
 	}
+	delete audio;
 }
 
 void SpaceScene::SceneLoop()
@@ -341,15 +387,20 @@ void SpaceScene::spawnAsteroids(GameObject *Node)
 {
 	//spawn asteroids in random locations maybe do a check to see if they are inside each other but maybe not
 
+	srand(time(NULL));
+
 	for (int i = 0; i < startingAsteroidCount; i++)
 	{
 		string name = "ast" + to_string(curAsteroidCount);
 
-		vec3 startingPos = vec3(rand() % 250 + -250, rand() % 250 + -250, rand() % 250 + -250);
-		
+		vec3 startingPos = vec3(rand() % 500 - 250, rand() % 500 - 250, rand() % 500 - 250);
+
 		Node->addChild(new GameObject(name, Node, objects["asteroid" + to_string(rand() % TotalAsteroidMeshCount + 1)], textures["AM" + to_string(rand() % TotalAsteroidTextureCount + 1)], shaders["main"]));	//creating object
 		Node->getChild(name)->addComponent(new Renderer(Node->getChild(name)));	//adding render comp
-		Node->getChild(name)->addComponent(new physicsComponent(Node->getChild(name), bulPhys->CreatePhysBox(btVector3(startingPos.x, startingPos.y, startingPos.y), 1, TestSphereID))); //adding physics comp
+
+		physicsComponent* phys = new physicsComponent(Node->getChild(name), bulPhys->CreatePhysBox(btVector3(startingPos.x, startingPos.y, startingPos.z), 1, AsteroidSphereID));
+		AllPhysComps.push_back(phys);
+		Node->getChild(name)->addComponent(phys); //adding physics comp
 		Node->getChild(name)->setPosition(startingPos);	//changing postiion
 		Node->getChild(name)->setRotation(vec3(0, 0, 0));	//change rotaion
 		Node->getChild(name)->setScale(vec3(1, 1, 1));	//change scele

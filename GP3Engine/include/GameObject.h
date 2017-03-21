@@ -55,7 +55,7 @@ public:
 	bool getWorld(){ return world; };
 	PlayerController *getInput(){ return input; };
 	mat4 getModelMatrix(){ return modelMatrix; }
-	Scene *getCurScene(){ return curScene; };
+	static Scene *getCurScene(){ return curScene; };
 	MeshData getMesh(){ return mesh; };
 	bool getForceRender(){ return forceRender; }
 

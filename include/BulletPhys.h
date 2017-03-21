@@ -1,6 +1,8 @@
 #pragma once
 
 #include <btBulletDynamicsCommon.h>
+//#include "GameObject.h"
+//#include "SpaceScene.h"
 
 class BulletPhys
 {
@@ -14,6 +16,7 @@ public:
 	void updatePhysics();
 	btRigidBody* getRidgidBody(int ID);
 	btVector3 getPosition(btRigidBody* body);
+	btDiscreteDynamicsWorld* getDynamicsWorld() { return dynamicsWorld; }
 
 
 private:
@@ -28,4 +31,3 @@ private:
 	//make sure to re-use collision shapes among rigid bodies whenever possible!
 	btAlignedObjectArray<btCollisionShape*> collisionShapes;
 };
-

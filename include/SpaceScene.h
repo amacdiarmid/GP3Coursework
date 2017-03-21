@@ -6,6 +6,8 @@
 #include "physicsComponent.h"
 #include "GameInputComponent.h"
 #include "GamePlayerController.h"
+//#include "OpenAL.h"
+#include "AudioClip.h"
 
 
 struct Light {
@@ -49,6 +51,9 @@ public:
 	void mouseMove(SDL_MouseMotionEvent motion) override;
 	void mouseDown(SDL_MouseButtonEvent button) override {};
 	void mouseUp(SDL_MouseButtonEvent button)override {};
+
+	std::list<physicsComponent*> getPhysComps() { return AllPhysComps; }
+	void addToPhysComps(physicsComponent* newComp) { AllPhysComps.push_back(newComp); }
 
 private:
 	//ShadowMapping 1st pass
@@ -124,15 +129,21 @@ private:
 
 	//bullet physics 
 	BulletPhys *bulPhys;
+	std::list<physicsComponent*> AllPhysComps;
 
 	//physic shape ID
-	int TestSphereID;
+	int AsteroidSphereID;
 	int missileBoxID;
 
 	int startingAsteroidCount;
 	int curAsteroidCount;
 	int TotalAsteroidMeshCount;
 	int TotalAsteroidTextureCount;
+
+	//audio
+	OpenAL* audio;
+	AudioClip* BackgroundAudio;
+
 };
 
 #endif

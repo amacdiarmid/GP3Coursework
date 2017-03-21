@@ -22,6 +22,7 @@ BulletPhys::BulletPhys()
 
 	//set gravity
 	dynamicsWorld->setGravity(btVector3(0, 0, 0));
+	//ContactAddedCallback = 
 }
 
 
@@ -128,6 +129,7 @@ void BulletPhys::updatePhysics()
 	dynamicsWorld->stepSimulation(1.f / 60.f, 10);
 
 	dynamicsWorld->debugDrawWorld();
+
 
 	//print positions of all objects
 	for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)

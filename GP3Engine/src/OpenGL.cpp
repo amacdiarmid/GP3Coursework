@@ -3,7 +3,6 @@
 
 void checkError(const char *file, int line)
 {
-	//TODO fix texturing issue
 	GLenum err = glGetError();
 	if (err != GL_NO_ERROR)
 		printf("%s:%d - GL Error: %s\n", file, line, gluErrorString(err));

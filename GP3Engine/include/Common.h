@@ -8,6 +8,7 @@
 #include <vector>
 #include <memory>
 #include <random>
+#include <list>
 
 using namespace std;
 
@@ -28,7 +29,7 @@ const float SCREEN_WIDTH = 640;
 const float SCREEN_HEIGHT = 480;
 const float FOV = 45;
 const float NEAR_CLIPPINGPLANE = 0.1f;
-const float FAR_CLIPPINGPLANE = 500.0f;
+const float FAR_CLIPPINGPLANE = 1000.0f;
 
 const string ASSET_PATH = "assets";
 const string SHADER_PATH = "/shaders";
@@ -36,6 +37,7 @@ const string TEXTURE_PATH = "/textures";
 const string FONT_PATH = "/fonts";
 const string MODEL_PATH = "/models";
 const string SCENE_PATH = "/scenes";
+const string AUDIO_PATH = "/audio";
 
 void checkError(const char *file, int line);
 

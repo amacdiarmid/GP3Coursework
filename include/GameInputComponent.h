@@ -1,8 +1,10 @@
 #pragma once
+//#include "BulletPhys.h"
 #include "Components\InputComponent.h"
 #include "GamePlayerController.h"
 #include "physicsComponent.h"
-#include "BulletPhys.h"
+#include "missileComponent.h"
+
 
 class GameInputComponent :public InputComponent
 {
