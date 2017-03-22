@@ -123,7 +123,7 @@ void SpaceScene::createScene()
 	audio = new OpenAL();
 	BackgroundAudio = new AudioClip();
 	//BackgroundAudio->Test();
-	BackgroundAudio->CreateBuffer("/SpacialHarvest.mp3");
+	BackgroundAudio->CreateBuffer("/bone break.wav");
 	BackgroundAudio->setLooping(TRUE);
 	BackgroundAudio->Play();
 	

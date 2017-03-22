@@ -5,6 +5,13 @@ OpenAL::OpenAL()
 {
 	ALenum  error;
 
+
+	alutInit(NULL, NULL);
+	if ((error = alutGetError()) != AL_NO_ERROR)
+	{
+		cout << alutGetErrorString(error) << endl;
+	}
+
 	deviceAL = alcOpenDevice(NULL);
 	if ((error = alGetError()) != AL_NO_ERROR)
 	{
@@ -16,12 +23,6 @@ OpenAL::OpenAL()
 	if ((error = alGetError()) != AL_NO_ERROR)
 	{
 		cout << alGetString(error) << endl;
-	}
-
-	alutInit(NULL, NULL);
-	if ((error = alutGetError()) != AL_NO_ERROR)
-	{
-		cout << alutGetErrorString(error) << endl;
 	}
 
 }

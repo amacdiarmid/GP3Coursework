@@ -10,7 +10,7 @@ BulletPhys::BulletPhys()
 	collisionConfiguration = new btDefaultCollisionConfiguration();
 
 	///use the default collision dispatcher.
-	dispatcher = new	btCollisionDispatcher(collisionConfiguration);
+	dispatcher = new btCollisionDispatcher(collisionConfiguration);
 
 	///btDbvtBroadphase is a good general purpose broadphase. You can also try out btAxis3Sweep.
 	overlappingPairCache = new btDbvtBroadphase();
