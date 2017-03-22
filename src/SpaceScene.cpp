@@ -121,20 +121,11 @@ void SpaceScene::createScene()
 	ALenum  error;
 
 	audio = new OpenAL();
-	if ((error = alGetError()) != AL_NO_ERROR)
-	{
-		cout << alGetString(error) << endl;
-	}
 	BackgroundAudio = new AudioClip();
-	if ((error = alGetError()) != AL_NO_ERROR)
-	{
-		cout << alGetString(error) << endl;
-	}
-	BackgroundAudio->CreateBuffer("/SpacialHarvest.wav");
-	if ((error = alGetError()) != AL_NO_ERROR)
-	{
-		cout << alGetString(error) << endl;
-	}
+	//BackgroundAudio->Test();
+	BackgroundAudio->CreateBuffer("/SpacialHarvest.mp3");
+	BackgroundAudio->setLooping(TRUE);
+	BackgroundAudio->Play();
 	
 	ALfloat listenerPos[] = { 0.0,0.0,0.0 };
 	ALfloat listenerVel[] = { 0.0,0.0,0.0 };

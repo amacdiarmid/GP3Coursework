@@ -33,4 +33,5 @@ OpenAL::~OpenAL()
 	alcMakeContextCurrent(NULL);
 	alcDestroyContext(contextAL);
 	alcCloseDevice(deviceAL);
+	alutExit();
 }

@@ -9,8 +9,16 @@ public:
 	~AudioClip();
 
 	void CreateBuffer(string modelPath);
+	void Play();
+	void Stop();
+	void setLooping(bool loop);
+
+	void Test();
 
 private:
+	ALenum  error;
+
 	ALuint AudioBuffer;
+	ALuint AudioSource;
 
 };
