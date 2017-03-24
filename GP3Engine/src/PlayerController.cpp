@@ -2,6 +2,7 @@
 
 PlayerController::PlayerController()
 {
+	mouseMovment(vec2(0, 0));
 }
 
 void PlayerController::moveForward()

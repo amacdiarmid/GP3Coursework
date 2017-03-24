@@ -24,7 +24,7 @@ void SpaceScene::render()
 {
 	CHECK_GL_ERROR();
 	//set the clear colour background 
-	glClearColor(0.0f, 0.0f, 1.0f, 0.5f);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.5f);
 	CHECK_GL_ERROR();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObject);
@@ -91,6 +91,7 @@ void SpaceScene::update()
 		0.5, 0.5, 0.5, 1.0
 	);
 
+	UpdateLightPerspMVP();
 	depthBias = biasMatrix * depthMVP;
 }
 
@@ -114,42 +115,8 @@ void SpaceScene::createScene()
 	//bullet physics
 	bulPhys = new BulletPhys();
 	bulPhys->CreateGroundPlane();
-	AsteroidSphereID = bulPhys->CreateSphereShape(10.0);
-	missileBoxID = bulPhys->CreateBoxShape(btVector3(50, 10, 10));
-
-	//audio
-	ALenum  error;
-
-	audio = new OpenAL();
-	BackgroundAudio = new AudioClip();
-	//BackgroundAudio->Test();
-	BackgroundAudio->CreateBuffer("/bone break.wav");
-	BackgroundAudio->setLooping(TRUE);
-	BackgroundAudio->Play();
-	
-	ALfloat listenerPos[] = { 0.0,0.0,0.0 };
-	ALfloat listenerVel[] = { 0.0,0.0,0.0 };
-	ALfloat listenerOri[] = { 0.0,0.0,-1.0, 0.0,1.0,0.0 };
-
-	// Position ... 
-	alListenerfv(AL_POSITION, listenerPos);
-	if ((error = alGetError()) != AL_NO_ERROR)
-	{
-		cout << alGetString(error) << endl;
-	}
-	// Velocity ... 
-	alListenerfv(AL_VELOCITY, listenerVel);
-	if ((error = alGetError()) != AL_NO_ERROR)
-	{
-		cout << alGetString(error) << endl;
-	}
-	// Orientation ... 
-	alListenerfv(AL_ORIENTATION, listenerOri);
-	if ((error = alGetError()) != AL_NO_ERROR)
-	{
-		cout << alGetString(error) << endl;
-	}
-
+	AsteroidSphereID = bulPhys->CreateSphereShape(20.0);
+	missileBoxID = bulPhys->CreateBoxShape(btVector3(10, 10, 10));
 
 	//asterois values;
 	startingAsteroidCount = 150;
@@ -162,6 +129,7 @@ void SpaceScene::createScene()
 	setUpMeshes();
 	setUpTextures();
 	setUpShaders();
+	setUpAudio();
 
 	//create player/debug cam
 	input = new GamePlayerController();
@@ -178,7 +146,7 @@ void SpaceScene::createScene()
 	//player
 	worldObject->addChild(new GameObject("player", worldObject, input));
 	GameInputComponent *inputComp = new GameInputComponent(worldObject->getChild("player"));
-	inputComp->assignMissile(objects["missile"], shaders["main"], textures["missile"], missileBoxID, bulPhys);
+	inputComp->assignMissile(objects["missile"], shaders["main"], textures["missile"], missileBoxID, bulPhys, Sounds["Explosion"], Sounds["RocketFire"]);
 	worldObject->getChild("player")->addComponent(inputComp);
 
 	//scene node
@@ -191,8 +159,7 @@ void SpaceScene::createScene()
 	string testName = "test";
 	tempObj->addChild(new GameObject(testName, tempObj, objects["TestTeapot"], textures["TestSun"], shaders["main"]));	//creating object
 	tempObj->getChild(testName)->addComponent(new Renderer(tempObj->getChild(testName)));	//adding render comp
-	physicsComponent* phys = new physicsComponent(tempObj->getChild(testName), bulPhys->CreatePhysBox(btVector3(0, 0, 0), 1, AsteroidSphereID));
-	AllPhysComps.push_back(phys);
+	physicsComponent* phys = new physicsComponent(tempObj->getChild(testName), bulPhys->CreatePhysBox(btVector3(0, 0, 0), 1, AsteroidSphereID), bulPhys);
 	tempObj->getChild(testName)->addComponent(phys); //adding physics comp
 	tempObj->getChild(testName)->setPosition(vec3(0, 0, 0));	//changing postiion
 	tempObj->getChild(testName)->setRotation(vec3(0, 0, 0));	//change rotaion
@@ -270,6 +237,10 @@ void SpaceScene::destroyScene()
 	for (auto const& x :shaders)
 	{
 		x.second->cleanUp();
+	}
+	for (auto const& x : Sounds)
+	{
+		delete x.second;
 	}
 	delete audio;
 }
@@ -374,6 +345,41 @@ void SpaceScene::setUpCubemap()
 	skyMaterial->loadSkyBoxTextures(skyBoxFront, skyBoxBack, skyBoxLeft, skyBoxRight, skyBoxTop, skyBoxBottom);
 }
 
+void SpaceScene::setUpAudio()
+{
+	//audio
+	ALenum  error;
+
+	audio = new OpenAL();
+	
+	AudioClip* tempAudio;
+
+	//background 
+	tempAudio = new AudioClip();
+	tempAudio->CreateBuffer("/SpacialHarvest.wav");
+	tempAudio->setLooping(TRUE);
+	tempAudio->Play();
+	Sounds.insert(pair<string, AudioClip*>("backgroundAudio", tempAudio));
+
+	//ship 
+	tempAudio = new AudioClip();
+	tempAudio->CreateBuffer("/sergeniousShip.wav");
+	tempAudio->setLooping(FALSE);
+	Sounds.insert(pair<string, AudioClip*>("ShipAudio", tempAudio));
+
+	//rocket 
+	tempAudio = new AudioClip();
+	tempAudio->CreateBuffer("/rocket-shoot.wav");
+	tempAudio->setLooping(TRUE);
+	Sounds.insert(pair<string, AudioClip*>("RocketFire", tempAudio));
+
+	//explosion 
+	tempAudio = new AudioClip();
+	tempAudio->CreateBuffer("/explosion-01.wav");
+	tempAudio->setLooping(FALSE);
+	Sounds.insert(pair<string, AudioClip*>("Explosion", tempAudio));
+}
+
 void SpaceScene::spawnAsteroids(GameObject *Node)
 {
 	//spawn asteroids in random locations maybe do a check to see if they are inside each other but maybe not
@@ -384,13 +390,12 @@ void SpaceScene::spawnAsteroids(GameObject *Node)
 	{
 		string name = "ast" + to_string(curAsteroidCount);
 
-		vec3 startingPos = vec3(rand() % 500 - 250, rand() % 500 - 250, rand() % 500 - 250);
+		vec3 startingPos = vec3(rand() % 1000 - 500, rand() % 1000 - 500, rand() % 1000 - 500);
 
 		Node->addChild(new GameObject(name, Node, objects["asteroid" + to_string(rand() % TotalAsteroidMeshCount + 1)], textures["AM" + to_string(rand() % TotalAsteroidTextureCount + 1)], shaders["main"]));	//creating object
 		Node->getChild(name)->addComponent(new Renderer(Node->getChild(name)));	//adding render comp
 
-		physicsComponent* phys = new physicsComponent(Node->getChild(name), bulPhys->CreatePhysBox(btVector3(startingPos.x, startingPos.y, startingPos.z), 1, AsteroidSphereID));
-		AllPhysComps.push_back(phys);
+		physicsComponent* phys = new physicsComponent(Node->getChild(name), bulPhys->CreatePhysBox(btVector3(startingPos.x, startingPos.y, startingPos.z), 1, AsteroidSphereID), bulPhys);
 		Node->getChild(name)->addComponent(phys); //adding physics comp
 		Node->getChild(name)->setPosition(startingPos);	//changing postiion
 		Node->getChild(name)->setRotation(vec3(0, 0, 0));	//change rotaion
@@ -487,8 +492,10 @@ void SpaceScene::onKeyDown(SDL_Keycode key)
 		break;
 	case SDLK_ESCAPE:
 		GameRunning = false;
+		break;
 	case SDLK_e:
-		bulPhys->getRidgidBody(1)->applyForce(btVector3(0, 1000, 0), btVector3(0, 0, 0));
+		//BackgroundAudio->Play();
+		break;
 	default:
 		break;
 	}

@@ -8,16 +8,18 @@ physicsComponent::physicsComponent()
 }
 
 
-physicsComponent::physicsComponent(GameObject *tempOwner, btRigidBody* tempRidgidBody)
+physicsComponent::physicsComponent(GameObject *tempOwner, btRigidBody* tempRidgidBody, BulletPhys* tempPhys)
 {
 	type = "physics component";
 	owner = tempOwner;
 	ridgidBody = tempRidgidBody;
+	ridgidBody->setUserPointer(owner);
+	bullPhys = tempPhys;
 }
 
 physicsComponent::~physicsComponent()
 {
-
+	bullPhys->Remove(ridgidBody);
 }
 
 void physicsComponent::update(mat4 MVPMat)

@@ -5,12 +5,13 @@
 #include "Object.h"
 #include <btBulletDynamicsCommon.h>
 #include "GameObject.h"
+#include "BulletPhys.h"
 
 class physicsComponent :public Component
 {
 public:
 	physicsComponent();
-	physicsComponent(GameObject *tempOwner, btRigidBody* tempRidgidBody);
+	physicsComponent(GameObject *tempOwner, btRigidBody* tempRidgidBody, BulletPhys* tempPhys);
 	~physicsComponent();
 
 	void update(mat4 MVPMat) override;
@@ -20,5 +21,6 @@ public:
 
 private:
 	btRigidBody* ridgidBody;
+	BulletPhys* bullPhys;
 };
 

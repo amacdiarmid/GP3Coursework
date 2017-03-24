@@ -12,6 +12,7 @@ public:
 	void Play();
 	void Stop();
 	void setLooping(bool loop);
+	void setLocation(vec3 pos);
 
 	void Test();
 

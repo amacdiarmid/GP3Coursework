@@ -7,7 +7,7 @@ OpenAL::OpenAL()
 
 
 	alutInit(NULL, NULL);
-	if ((error = alutGetError()) != AL_NO_ERROR)
+	/*if ((error = alutGetError()) != AL_NO_ERROR)
 	{
 		cout << alutGetErrorString(error) << endl;
 	}
@@ -23,16 +23,16 @@ OpenAL::OpenAL()
 	if ((error = alGetError()) != AL_NO_ERROR)
 	{
 		cout << alGetString(error) << endl;
-	}
+	}*/
 
 }
 
 OpenAL::~OpenAL()
 {
-	contextAL = alcGetCurrentContext();
+	/*contextAL = alcGetCurrentContext();
 	deviceAL = alcGetContextsDevice(contextAL);
 	alcMakeContextCurrent(NULL);
 	alcDestroyContext(contextAL);
-	alcCloseDevice(deviceAL);
+	alcCloseDevice(deviceAL);*/
 	alutExit();
 }

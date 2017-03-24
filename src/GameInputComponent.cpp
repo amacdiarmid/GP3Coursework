@@ -4,11 +4,12 @@
 
 GameInputComponent::GameInputComponent(GameObject *tempOwner)
 {
-	type = "input component";
+	type = "Game input component";
 	owner = tempOwner;
 	keyboardListeners.push_back(this);
 	playerCon = (GamePlayerController*)owner->getInput();
 	missileCount = 0;
+	FireForce = 5000;
 }
 
 
@@ -69,19 +70,17 @@ void GameInputComponent::mouseDown(SDL_MouseButtonEvent button)
 
 		//TODO set the firce direction forward
 
-		btVector3 fireForce = btVector3(playerCon->getlookAtPoint().x * 1000, playerCon->getlookAtPoint().y * 1000, playerCon->getlookAtPoint().z * 1000);
-		missile1->applyForce(fireForce, FirePosition);
-		missile1->setAngularVelocity(fireForce);
+		btVector3 btForce = btVector3(playerCon->getlookAtPoint().x * FireForce, playerCon->getlookAtPoint().y * FireForce, playerCon->getlookAtPoint().z * FireForce);
+		missile1->applyForce(btForce, FirePosition);
+		missile1->setAngularVelocity(btForce);
 		missile1->setCollisionFlags(missile1->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
 
 		tempMissile->addComponent(new Renderer(owner->getChild(TempName)));	//adding render comp
 
-		physicsComponent* phys = new physicsComponent(owner->getChild(TempName), missile1);
-		SpaceScene* scene = (SpaceScene*)owner->getCurScene();
-		scene->addToPhysComps(phys);
+		physicsComponent* phys = new physicsComponent(owner->getChild(TempName), missile1, bulPhys);
 
 		tempMissile->addComponent(phys); //adding physics comp
-		tempMissile->addComponent(new missileComponent(owner->getChild(TempName), missile1, bulPhys->getDynamicsWorld()));	//adding the missile comp with all the missile related code
+		tempMissile->addComponent(new missileComponent(owner->getChild(TempName), ExpAudio, FireAudio));	//adding the missile comp with all the missile related code
 		tempMissile->setPosition(vec3(0,0,0));	//changing postiion
 		tempMissile->setRotation(playerCon->getlookAtPoint());	//change rotaion
 		tempMissile->setScale(vec3(1, 1, 1));	//change scele

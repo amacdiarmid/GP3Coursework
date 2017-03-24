@@ -19,9 +19,8 @@ void AudioClip::CreateBuffer(string modelPath)
 		cout << alGetString(error) << endl;
 	}
 
-	//alutLoadWAVFile("Spacial Harvest.wav", &m_OALFormat, (void **)&m_OALData, (ALsizei *)&m_OALBufferLen, &m_OALFrequency, &m_alLoop);
 	AudioBuffer = alutCreateBufferFromFile(Path.c_str());
-	//AudioBuffer = alutCreateBufferHelloWorld();
+
 	if ((error = alutGetError()) != AL_NO_ERROR)
 	{
 		cout << alutGetErrorString(error) << endl;
@@ -63,6 +62,16 @@ void AudioClip::setLooping(bool loop)
 	else
 		alSourcei(AudioSource, AL_LOOPING, AL_FALSE);
 
+	if ((error = alGetError()) != AL_NO_ERROR)
+	{
+		cout << alGetString(error) << endl;
+	}
+}
+
+void AudioClip::setLocation(vec3 pos)
+{
+	ALfloat listenerPos[] = { pos.x, pos.y, pos.z };
+	alGetSourcefv(AudioSource, AL_POSITION, listenerPos);
 	if ((error = alGetError()) != AL_NO_ERROR)
 	{
 		cout << alGetString(error) << endl;

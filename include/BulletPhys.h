@@ -1,7 +1,8 @@
 #pragma once
 
 #include <btBulletDynamicsCommon.h>
-//#include "GameObject.h"
+#include "GameObject.h"
+#include "missileComponent.h"
 //#include "SpaceScene.h"
 
 class BulletPhys
@@ -17,6 +18,7 @@ public:
 	btRigidBody* getRidgidBody(int ID);
 	btVector3 getPosition(btRigidBody* body);
 	btDiscreteDynamicsWorld* getDynamicsWorld() { return dynamicsWorld; }
+	void Remove(btRigidBody* tempBody);
 
 
 private:

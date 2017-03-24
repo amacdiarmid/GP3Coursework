@@ -1,10 +1,12 @@
 #include "missileComponent.h"
 
-missileComponent::missileComponent(GameObject *tempOwner, btRigidBody* tempRigidBody, btDiscreteDynamicsWorld* TdynamicsWorld)
+missileComponent::missileComponent(GameObject *tempOwner, AudioClip* TempExp, AudioClip* TempFire)
 {
+	type = "missile component";
 	owner = tempOwner;
-	rigidBody = tempRigidBody;
-	dynamicsWorld = TdynamicsWorld;
+	explosion = TempExp;
+	fire = TempFire;
+	fire->Play();
 }
 
 missileComponent::~missileComponent()
@@ -13,28 +15,24 @@ missileComponent::~missileComponent()
 
 void missileComponent::update(mat4 MVPMat)
 {
-	SpaceScene* curScene = (SpaceScene*)owner->getCurScene();
-	std::list<physicsComponent*> physList = curScene->getPhysComps();
 
-	//rigidBody->
-
-	for each (physicsComponent* i in physList)
-	{
-		if (rigidBody->checkCollideWith(i->getRB()))
-		{
-			collideWithObject(i->getOwner());
-		}
-	}
-	
 }
 
 bool missileComponent::collideWithObject(GameObject* target)
 {
-	//playAudio
-	//playParticles
-	//destroyobject
-	//destroyTarget
 	cout << "destroy " + owner->getName() << endl;
+	
+	//play audio
+	explosion->Play();
+	fire->setLocation(owner->getWorldPos());
+	fire->Stop();
+	
+	//playParticles
+	
+	//destroyTarget
+	owner->setDestroy(true);
+	target->setDestroy(true);
+
 	return true;
 }
 

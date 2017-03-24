@@ -19,6 +19,7 @@ GameObject::GameObject(string tempName)
 	childrenList.clear();
 	componentsList.clear();
 	active = true;
+	Destroy = false;
 }
 
 GameObject::GameObject(string tempName, GameObject *tempParent, Object *tempModel, Texture *tempTexture, Shader *tempShader)
@@ -33,6 +34,7 @@ GameObject::GameObject(string tempName, GameObject *tempParent, Object *tempMode
 	childrenList.clear();
 	componentsList.clear();
 	active = true;
+	Destroy = false;
 }
 
 GameObject::GameObject(string tempName, GameObject *tempParent, PlayerController *tempInput)
@@ -47,6 +49,7 @@ GameObject::GameObject(string tempName, GameObject *tempParent, PlayerController
 	childrenList.clear();
 	componentsList.clear();
 	active = true;
+	Destroy = false;
 }
 
 GameObject::GameObject(string tempName, GameObject *tempParent)
@@ -61,10 +64,20 @@ GameObject::GameObject(string tempName, GameObject *tempParent)
 	childrenList.clear();
 	componentsList.clear();
 	active = true;
+	Destroy = false;
 }
 
 GameObject::~GameObject()
 {
+	for (auto const& x : childrenList)
+	{
+		delete x.second;
+	}
+	for (auto const& x : componentsList)
+	{
+		delete x.second;
+	}
+	parent->getChildrenMap()->erase(name);
 }
 
 void GameObject::update(mat4 VPMat)
@@ -76,6 +89,8 @@ void GameObject::update(mat4 VPMat)
 	modelMatrix = scale(modelMatrix, size);
 	MVP = VPMat * modelMatrix;
 
+	list<string> toBeDestroyed;
+
 	if (active)
 	{
 		for (auto i = componentsList.begin(); i != componentsList.end(); i++)
@@ -84,8 +99,22 @@ void GameObject::update(mat4 VPMat)
 		}
 		for (auto i = childrenList.begin(); i != childrenList.end(); i++)
 		{
-			i->second->update(VPMat);
+			if (i->second->getDestroy())
+			{
+				toBeDestroyed.push_back(i->second->getName());
+			}
+			else
+			{
+				i->second->update(VPMat);
+			}
+			
 		}
+	}
+
+	for each (string var in toBeDestroyed)
+	{
+		delete childrenList[var];
+		childrenList.erase(var);
 	}
 }
 
@@ -173,4 +202,9 @@ vec3 GameObject::getWorldPos()
 	}
 	return TempPos;
 
+}
+
+Component * GameObject::getComp(string tempName)
+{
+	return componentsList[tempName];
 }

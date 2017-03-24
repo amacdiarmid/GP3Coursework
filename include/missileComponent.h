@@ -2,15 +2,13 @@
 
 #include "Common.h"
 #include "Components\BaseComponent.h"
-#include "Object.h"
-#include "btBulletDynamicsCommon.h"
 #include "GameObject.h"
-#include "SpaceScene.h"
+#include "AudioClip.h"
 
 class missileComponent : public Component
 {
 public:
-	missileComponent(GameObject *tempOwner, btRigidBody* tempRigidBody, btDiscreteDynamicsWorld* TdynamicsWorld);
+	missileComponent(GameObject *tempOwner, AudioClip* TempExp, AudioClip* TempFire);
 	~missileComponent();
 
 	void update(mat4 MVPMat) override;
@@ -18,6 +16,6 @@ public:
 	bool collideWithObject(GameObject* target);
 
 private:
-	btRigidBody* rigidBody;
-	btDiscreteDynamicsWorld* dynamicsWorld;
+	AudioClip* explosion;
+	AudioClip* fire;
 };

@@ -132,7 +132,7 @@ void BulletPhys::updatePhysics()
 
 
 	//print positions of all objects
-	for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
+	/*for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
 	{
 		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
 		btRigidBody* body = btRigidBody::upcast(obj);
@@ -146,7 +146,41 @@ void BulletPhys::updatePhysics()
 		{
 			trans = obj->getWorldTransform();
 		}
-		//printf("world pos object %d = %f,%f,%f\n", j, float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()));
+		printf("world pos object %d = %f,%f,%f\n", j, float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()));
+	}*/
+
+	int NumManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
+	for (int i = 0; i < NumManifolds; i++)
+	{
+		btPersistentManifold* contactMainifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+
+		const btCollisionObject* obj0 = contactMainifold->getBody0();
+		const btCollisionObject* obj1 = contactMainifold->getBody1();
+
+		GameObject* GameObj0 = (GameObject*)obj0->getUserPointer();
+		GameObject* GameObj1 = (GameObject*)obj1->getUserPointer();
+
+		if (GameObj0 && GameObj1)
+		{
+			missileComponent* tempMissComp = (missileComponent*)GameObj0->getComp("missile component");
+			if (tempMissComp)
+			{
+				tempMissComp->collideWithObject(GameObj1);
+			}
+			else
+			{
+				GameObj0->getCompMap()->erase("missile component");
+				tempMissComp = (missileComponent*)GameObj1->getComp("missile component");
+				if (tempMissComp)
+				{
+					tempMissComp->collideWithObject(GameObj0);
+				}
+				else
+				{
+					GameObj1->getCompMap()->erase("missile component");
+				}
+			}
+		}	
 	}
 }
 
@@ -161,4 +195,9 @@ btVector3 BulletPhys::getPosition(btRigidBody* body)
 	btTransform trans;
 	body->getMotionState()->getWorldTransform(trans);
 	return trans.getOrigin();
+}
+
+void BulletPhys::Remove(btRigidBody * tempBody)
+{
+	dynamicsWorld->removeRigidBody(tempBody);
 }

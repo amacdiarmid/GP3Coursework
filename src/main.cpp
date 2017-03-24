@@ -11,6 +11,8 @@ int main(int argc, char * arg[])
 
 	createWindow("Space Decent");
 
+	SDL_ShowCursor(SDL_DISABLE);
+
 	GameApp *curGame = new GP3Game();
 
 	while (GameRunning)

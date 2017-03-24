@@ -35,6 +35,7 @@ public:
 	void setUpMeshes();
 	void setUpTextures();
 	void setUpCubemap();
+	void setUpAudio();
 
 	void spawnAsteroids(GameObject *Node);
 
@@ -51,9 +52,6 @@ public:
 	void mouseMove(SDL_MouseMotionEvent motion) override;
 	void mouseDown(SDL_MouseButtonEvent button) override {};
 	void mouseUp(SDL_MouseButtonEvent button)override {};
-
-	std::list<physicsComponent*> getPhysComps() { return AllPhysComps; }
-	void addToPhysComps(physicsComponent* newComp) { AllPhysComps.push_back(newComp); }
 
 private:
 	//ShadowMapping 1st pass
@@ -110,8 +108,6 @@ private:
 	GLuint gLightAmbientCoeLoc;
 	GLuint cameraPosLoc;
 
-
-
 	vec3 lightDirection = vec3(0.0f, 0.0f, 1.0f);
 	vec4 ambientMaterialColor = vec4(0.3f, 0.3f, 0.3f, 1.0f);
 	vec4 ambientLightColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -129,7 +125,6 @@ private:
 
 	//bullet physics 
 	BulletPhys *bulPhys;
-	std::list<physicsComponent*> AllPhysComps;
 
 	//physic shape ID
 	int AsteroidSphereID;
@@ -142,7 +137,7 @@ private:
 
 	//audio
 	OpenAL* audio;
-	AudioClip* BackgroundAudio;
+	map<string, AudioClip*> Sounds;
 
 };
 
