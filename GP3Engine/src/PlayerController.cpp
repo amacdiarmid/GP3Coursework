@@ -64,6 +64,8 @@ void PlayerController::strafeLeft()
 
 void PlayerController::mouseMovment(vec2 mousePos)
 {
+	//cout << "hor angle " << mousePos.x << " vert angle " << mousePos.y << endl;
+
 	horAngle += mouseSpeed * float(SCREEN_WIDTH / 2 - mousePos.x);
 	if (degrees(horAngle) > 360.0f) { horAngle = radians(0.0f); }
 	else if (degrees(horAngle) < 0.0f){ horAngle = radians(360.0f); }

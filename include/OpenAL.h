@@ -13,8 +13,13 @@ public:
 
 	ALCdevice* getDevice() { return deviceAL; };
 	ALCcontext* getContext() { return contextAL; };
+	void setVolume(int vol);
+	void toggleMute();
 
 private:
 	ALCdevice* deviceAL;
 	ALCcontext* contextAL;
+
+	float curVolume;
+	float maxVolume;
 };

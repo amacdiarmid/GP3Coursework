@@ -14,14 +14,22 @@ public:
 	GameInputComponent(GameObject *tempOwner);
 	~GameInputComponent();
 
+	void update(mat4 MVPMat) override;
+
 	void onKeyDown(SDL_Keycode key) override;
 	void onkeyUp(SDL_Keycode key) override;
 	void mouseMove(SDL_MouseMotionEvent motion) override;
 	void mouseDown(SDL_MouseButtonEvent button) override;
 	void mouseUp(SDL_MouseButtonEvent button) override;
+	void joyMove(SDL_ControllerAxisEvent motion) override;
+	void joyButtonDown(SDL_ControllerButtonEvent button) override;
+	void joyButtonUp(SDL_ControllerButtonEvent button) override;
 
 	void assignBulPhys(BulletPhys* tempBul) { bulPhys = tempBul; };
 	void assignMissile(Object* tempObject, Shader* tempShader, Texture* tempTexture, int shapeID, BulletPhys* TempPhys, AudioClip* TempExp, AudioClip* TempFire) { missileObject = tempObject, missileShader = tempShader, missileTexture = tempTexture, missileShapeID = shapeID, bulPhys = TempPhys, FireAudio = TempFire, ExpAudio = TempExp; };
+
+	void FireMissile();
+	void controllerToMouseMovement(SDL_ControllerAxisEvent motion);
 
 private:
 	GamePlayerController *playerCon;
@@ -38,7 +46,21 @@ private:
 
 	//missile cound 
 	int missileCount;
-
 	int FireForce;
+
+	//controller
+	int StickDeadZone;
+	float curX;
+	float curY;
+	float controllerSensitivity;
+
+	//input bool
+	bool moveForward;
+	bool moveBack;
+	bool moveLeft;
+	bool moveRight;
+	bool Fire;
+	bool ControllerAimX;
+	bool ControllerAimY;
 };
 

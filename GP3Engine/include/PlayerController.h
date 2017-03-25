@@ -28,6 +28,8 @@ protected:
 	vec3 center = position;
 	float maxDistance = 95;
 
+	float controllerSensitivity = 0.1;
+
 public:
 	PlayerController();
 	~PlayerController();

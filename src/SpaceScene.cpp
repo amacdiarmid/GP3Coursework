@@ -493,6 +493,9 @@ void SpaceScene::onKeyDown(SDL_Keycode key)
 	case SDLK_ESCAPE:
 		GameRunning = false;
 		break;
+	case SDLK_m:
+		audio->toggleMute();
+		break;
 	case SDLK_e:
 		//BackgroundAudio->Play();
 		break;
@@ -509,6 +512,20 @@ void SpaceScene::onkeyUp(SDL_Keycode key)
 void SpaceScene::mouseMove(SDL_MouseMotionEvent motion)
 {
 
+}
+
+void SpaceScene::joyButtonUp(SDL_ControllerButtonEvent button)
+{
+	switch (button.button)
+	{
+	case SDL_CONTROLLER_BUTTON_BACK:
+		audio->toggleMute();
+		break;
+	case SDL_CONTROLLER_BUTTON_START:
+		GameRunning = false;
+	default:
+		break;
+	}
 }
 
 string SpaceScene::getName()

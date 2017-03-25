@@ -3,28 +3,10 @@
 
 OpenAL::OpenAL()
 {
-	ALenum  error;
-
-
 	alutInit(NULL, NULL);
-	/*if ((error = alutGetError()) != AL_NO_ERROR)
-	{
-		cout << alutGetErrorString(error) << endl;
-	}
 
-	deviceAL = alcOpenDevice(NULL);
-	if ((error = alGetError()) != AL_NO_ERROR)
-	{
-		cout << alGetString(error) << endl;
-	}
-
-	contextAL = alcCreateContext(deviceAL, NULL);
-	alcMakeContextCurrent(contextAL);
-	if ((error = alGetError()) != AL_NO_ERROR)
-	{
-		cout << alGetString(error) << endl;
-	}*/
-
+	alGetListenerf(AL_GAIN, &maxVolume);
+	curVolume = maxVolume;
 }
 
 OpenAL::~OpenAL()
@@ -35,4 +17,24 @@ OpenAL::~OpenAL()
 	alcDestroyContext(contextAL);
 	alcCloseDevice(deviceAL);*/
 	alutExit();
+}
+
+void OpenAL::setVolume(int tempVol)
+{
+	alListenerf(AL_GAIN, tempVol);
+	curVolume = tempVol;
+}
+
+void OpenAL::toggleMute()
+{
+	if (curVolume == 0)
+	{
+		alListenerf(AL_GAIN, maxVolume);
+		curVolume = maxVolume;
+	}
+	else
+	{
+		alListenerf(AL_GAIN, 0);
+		curVolume = 0;
+	}
 }

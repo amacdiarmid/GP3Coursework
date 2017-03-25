@@ -9,6 +9,20 @@ GP3Game::GP3Game()
 	keyboardListeners.push_back(currentScene);
 
 	currentScene->createScene();
+
+	SDL_GameController *controller = NULL;
+	for (int i = 0; i < SDL_NumJoysticks(); ++i) {
+		if (SDL_IsGameController(i)) {
+			controller = SDL_GameControllerOpen(i);
+			if (controller) {
+				break;
+			}
+			else {
+				fprintf(stderr, "Could not open gamecontroller %i: %s\n", i, SDL_GetError());
+			}
+		}
+	}
+
 }
 
 GP3Game::~GP3Game()
@@ -41,6 +55,13 @@ bool GP3Game::gameLoop()
 				var->onKeyDown(event.key.keysym.sym);
 			}
 		}
+		if (event.type == SDL_KEYUP)
+		{
+			for each (auto var in keyboardListeners)
+			{
+				var->onkeyUp(event.key.keysym.sym);
+			}
+		}
 		if (event.type == SDL_MOUSEMOTION)
 		{
 			for each (auto var in keyboardListeners)
@@ -60,6 +81,27 @@ bool GP3Game::gameLoop()
 			for each (auto var in keyboardListeners)
 			{
 				var->mouseUp(event.button);
+			}
+		}
+		if (event.type == SDL_CONTROLLERBUTTONUP)
+		{
+			for each (auto var in keyboardListeners)
+			{
+				var->joyButtonUp(event.cbutton);
+			}
+		}
+		if (event.type == SDL_CONTROLLERBUTTONDOWN)
+		{
+			for each (auto var in keyboardListeners)
+			{
+				var->joyButtonDown(event.cbutton);
+			}
+		}
+		if (event.type == SDL_CONTROLLERAXISMOTION)
+		{
+			for each (auto var in keyboardListeners)
+			{
+				var->joyMove(event.caxis);
 			}
 		}
 	}

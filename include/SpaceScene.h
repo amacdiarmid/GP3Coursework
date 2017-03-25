@@ -52,6 +52,9 @@ public:
 	void mouseMove(SDL_MouseMotionEvent motion) override;
 	void mouseDown(SDL_MouseButtonEvent button) override {};
 	void mouseUp(SDL_MouseButtonEvent button)override {};
+	void joyMove(SDL_ControllerAxisEvent motion) override {};
+	void joyButtonDown(SDL_ControllerButtonEvent button) override {};
+	void joyButtonUp(SDL_ControllerButtonEvent button) override;
 
 private:
 	//ShadowMapping 1st pass
