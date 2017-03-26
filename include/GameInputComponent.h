@@ -31,6 +31,9 @@ public:
 	void FireMissile();
 	void controllerToMouseMovement(SDL_ControllerAxisEvent motion);
 
+	bool getFixedCam() { return fixedCam; }
+	void setFixedCam(bool TempBool) { fixedCam = TempBool; }
+
 private:
 	GamePlayerController *playerCon;
 
@@ -47,6 +50,9 @@ private:
 	//missile cound 
 	int missileCount;
 	int FireForce;
+	float missileFireRate = 3000;
+	bool CanFire = true;
+	int TickOnFire;
 
 	//controller
 	int StickDeadZone;
@@ -62,5 +68,7 @@ private:
 	bool Fire;
 	bool ControllerAimX;
 	bool ControllerAimY;
+
+	bool fixedCam = false;
 };
 

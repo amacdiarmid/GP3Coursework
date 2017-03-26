@@ -39,6 +39,8 @@ public:
 
 	void spawnAsteroids(GameObject *Node);
 
+	void OrbitCamera();
+
 	//debug stuff
 	GameObject *getGameObject(string command) override;
 	GameObject *getWorldObject() override;
@@ -47,6 +49,7 @@ public:
 	Shader *getShader(string command) override;
 	string getName() override;
 
+	//input stuff
 	void onKeyDown(SDL_Keycode key) override;
 	void onkeyUp(SDL_Keycode key) override;
 	void mouseMove(SDL_MouseMotionEvent motion) override;
@@ -142,6 +145,11 @@ private:
 	OpenAL* audio;
 	map<string, AudioClip*> Sounds;
 
+	list<GameObject*> Asteroids;
+
+	GameInputComponent *inputComp;
+	vec3 playerPos;
+	GameObject* playerObj;
 };
 
 #endif

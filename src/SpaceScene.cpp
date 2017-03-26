@@ -79,7 +79,6 @@ void SpaceScene::update()
 
 	bulPhys->updatePhysics();
 	
-	
 	worldObject->update(input->getMVPmatrix());
 
 	CHECK_GL_ERROR();
@@ -143,17 +142,27 @@ void SpaceScene::createScene()
 	//current object for easy parent
 	GameObject *tempObj;
 
-	//player
-	worldObject->addChild(new GameObject("player", worldObject, input));
-	GameInputComponent *inputComp = new GameInputComponent(worldObject->getChild("player"));
-	inputComp->assignMissile(objects["missile"], shaders["main"], textures["missile"], missileBoxID, bulPhys, Sounds["Explosion"], Sounds["RocketFire"]);
-	worldObject->getChild("player")->addComponent(inputComp);
-
 	//scene node
 	worldObject->addChild(new GameObject("SpaceNode", worldObject));	//creating node
 	tempObj = worldObject->getChild("SpaceNode"); //setting temp object for easy access
 	tempObj->setPosition(vec3(0, 0, 0));
 	tempObj->setActive(true);
+	
+	//player
+	playerObj = new GameObject("player", tempObj, input);
+	tempObj->addChild(playerObj);
+	inputComp = new GameInputComponent(tempObj->getChild("player"));
+	inputComp->assignMissile(objects["missile"], shaders["main"], textures["missile"], missileBoxID, bulPhys, Sounds["Explosion"], Sounds["RocketFire"]);
+	playerObj->addComponent(inputComp);
+	playerObj->setPosition(vec3(0, 0, 0));
+	playerObj->addComponent(new Renderer(tempObj->getChild("player")));	//adding render comp
+	playerObj->setShader(shaders["main"]);
+	playerObj->setTexture(textures["GreenShip"]);
+	playerObj->setModel(objects["ship"]);
+	playerObj->setForceRender(true);
+	playerObj->setForceNoRender(true);
+
+	
 
 	// example object
 	string testName = "test";
@@ -403,7 +412,64 @@ void SpaceScene::spawnAsteroids(GameObject *Node)
 		Node->getChild(name)->setForceRender(true);
 
 		curAsteroidCount++;
+
+		Asteroids.push_front(Node->getChild(name));
 	}
+}
+
+
+//turns out it is very difficult to move the camera and not break everything inside the engine 
+//camera will snap to nearest asteroid but the ship will move with the camera 
+//pressing the button agian will move the camera back to where it was but 
+void SpaceScene::OrbitCamera()
+{
+	if (!inputComp->getFixedCam())
+	{
+		float MinDis = 999999999;
+		GameObject* curMinAst;
+
+		playerPos = playerObj->getWorldPos();
+		for each (GameObject* var in Asteroids)
+		{
+			if (var)
+			{
+				vec3 ast = var->getWorldPos();
+
+				float TempLen = glm::distance(playerPos, ast);
+
+				if (TempLen < MinDis && TempLen > 500)
+				{
+					MinDis = TempLen;
+					curMinAst = var;
+					cout << TempLen << endl;
+				}
+			}	
+		}
+
+		inputComp->setFixedCam(true);
+		curMinAst->setForceNoRender(true);
+		playerObj->setForceNoRender(false);
+
+		//set the new camera position
+		input->setWorldPoint(curMinAst->getWorldPos());
+		//set the ship to the new position
+		playerObj->setPosition(playerPos);
+	}
+	else
+	{
+		inputComp->setFixedCam(false);
+		playerObj->setForceNoRender(true);
+		for each (GameObject* var in Asteroids)
+		{
+			var->setForceNoRender(false);
+		}
+
+		//set the new camera position
+		input->setWorldPoint(playerPos);
+		//set the ship to the new position
+		playerObj->setPosition(playerPos);
+	}
+	
 }
 
 GameObject *SpaceScene::getGameObject(string command)
@@ -497,7 +563,7 @@ void SpaceScene::onKeyDown(SDL_Keycode key)
 		audio->toggleMute();
 		break;
 	case SDLK_e:
-		//BackgroundAudio->Play();
+		OrbitCamera();
 		break;
 	default:
 		break;
@@ -523,6 +589,10 @@ void SpaceScene::joyButtonUp(SDL_ControllerButtonEvent button)
 		break;
 	case SDL_CONTROLLER_BUTTON_START:
 		GameRunning = false;
+		break;
+	case SDL_CONTROLLER_BUTTON_Y:
+		OrbitCamera();
+		break;
 	default:
 		break;
 	}

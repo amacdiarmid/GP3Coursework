@@ -126,7 +126,7 @@ void GameObject::render(Fustrum* fustrum)
 		{
 			//see if the model is inside the fustrum then render
 			positionToFrustrum pos = fustrum->isInFrustrum(model->getBoundingBox()->radius, localPos);
-			if (forceRender == true || pos == INSIDE_FRUSTRUM || pos == INTERSECT_FRUSTRUM)
+			if (((forceRender == true)|| pos == INSIDE_FRUSTRUM || pos == INTERSECT_FRUSTRUM) && forceNoRender == false)
 			{
 				for (auto i = componentsList.begin(); i != componentsList.end(); i++)
 				{

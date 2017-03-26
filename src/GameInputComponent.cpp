@@ -30,26 +30,38 @@ GameInputComponent::~GameInputComponent()
 
 void GameInputComponent::update(mat4 MVPMat)
 {
-	if (moveForward)
+	if (!fixedCam)
 	{
-		owner->getInput()->moveForward();
+		if (moveForward)
+		{
+			owner->getInput()->moveForward();
+		}
+		if (moveBack)
+		{
+			owner->getInput()->moveBackward();
+		}
+		if (moveLeft)
+		{
+			owner->getInput()->strafeLeft();
+		}
+		if (moveRight)
+		{
+			owner->getInput()->strafeRight();
+		}
+		if (Fire && CanFire)
+		{
+			CanFire = false;
+			TickOnFire = SDL_GetTicks();
+			FireMissile();
+		}
 	}
-	if (moveBack)
+	
+	if (SDL_GetTicks() - TickOnFire >= missileFireRate)
 	{
-		owner->getInput()->moveBackward();
+		CanFire = true;
 	}
-	if (moveLeft)
-	{
-		owner->getInput()->strafeLeft();
-	}
-	if (moveRight)
-	{
-		owner->getInput()->strafeRight();
-	}
-	if (Fire)
-	{
-		FireMissile();
-	}
+
+
 	owner->setPosition(owner->getInput()->getWorldPoint());
 	
 	if (ControllerAimX || ControllerAimY)

@@ -59,6 +59,7 @@ public:
 	static Scene *getCurScene(){ return curScene; };
 	MeshData getMesh(){ return mesh; };
 	bool getForceRender(){ return forceRender; }
+	bool getForceNoRender() { return forceNoRender; }
 	bool getDestroy() { return Destroy; }
 	GameObject* getParent() { return parent; }
 
@@ -76,6 +77,7 @@ public:
 	void setInput(PlayerController *tempPlayer){ input = tempPlayer; };
 	void setScene(Scene *tempScene){ curScene = tempScene; };
 	void setForceRender(bool tempBool){ forceRender = tempBool; }
+	void setForceNoRender(bool tempBool) { forceNoRender = tempBool; }
 	void setDestroy(bool tempBool) { Destroy = tempBool; }
 
 
@@ -94,6 +96,7 @@ private:
 	mat4 modelMatrix;
 	MeshData mesh;
 	bool forceRender = false;
+	bool forceNoRender = false;
 	bool Destroy;
 
 	//the distance from the parent world position
