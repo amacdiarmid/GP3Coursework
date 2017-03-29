@@ -76,7 +76,7 @@ void BulletPhys::CreateGroundPlane()
 	dynamicsWorld->addRigidBody(body);
 }
 
-btRigidBody* BulletPhys::CreatePhysBox(btVector3 StartPos, float TempMass, int ID)
+btRigidBody* BulletPhys::CreatePhysBox(btVector3 StartPos, float TempMass, int ID, collisiontypes Group)
 {
 	//create a dynamic rigidbody
 
@@ -104,7 +104,33 @@ btRigidBody* BulletPhys::CreatePhysBox(btVector3 StartPos, float TempMass, int I
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
 	btRigidBody* body = new btRigidBody(rbInfo);
 
-	dynamicsWorld->addRigidBody(body);
+
+	//TODO set groups for adding bodies
+	switch (Group)
+	{
+	case COL_NOTHING:
+		dynamicsWorld->addRigidBody(body);
+		break;
+	case COL_AST:
+		dynamicsWorld->addRigidBody(body, COL_AST, astCollidesWith);
+		break;
+	case COL_ENEMY:
+		dynamicsWorld->addRigidBody(body, COL_ENEMY, EnemyCollidesWith);
+		break;
+	case COL_ENEMYMISSILE:
+		dynamicsWorld->addRigidBody(body, COL_ENEMYMISSILE, EnemyMissilesCollidesWith);
+		break;
+	case COL_PLAYER:
+		dynamicsWorld->addRigidBody(body, COL_PLAYER, PlayerCollidesWith);
+		break;
+	case COL_PLAYERMISSILE:
+		dynamicsWorld->addRigidBody(body, COL_PLAYERMISSILE, PlayerMissilesCollidesWith);
+		break;
+	default:
+		break;
+	}
+
+	
 
 	return body;
 }
@@ -128,7 +154,7 @@ void BulletPhys::updatePhysics()
 {
 	dynamicsWorld->stepSimulation(1.f / 60.f, 10);
 
-	dynamicsWorld->debugDrawWorld();
+	//dynamicsWorld->debugDrawWorld();
 
 
 	//print positions of all objects

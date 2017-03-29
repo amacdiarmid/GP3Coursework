@@ -53,6 +53,7 @@ private:
 	float missileFireRate = 3000;
 	bool CanFire = true;
 	int TickOnFire;
+	int missileMass = 1;
 
 	//controller
 	int StickDeadZone;

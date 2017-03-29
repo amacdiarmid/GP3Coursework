@@ -116,6 +116,7 @@ void SpaceScene::createScene()
 	bulPhys->CreateGroundPlane();
 	AsteroidSphereID = bulPhys->CreateSphereShape(20.0);
 	missileBoxID = bulPhys->CreateBoxShape(btVector3(10, 10, 10));
+	shipBoxID = bulPhys->CreateBoxShape(btVector3(15, 15, 15));
 
 	//asterois values;
 	startingAsteroidCount = 150;
@@ -155,20 +156,20 @@ void SpaceScene::createScene()
 	inputComp->assignMissile(objects["missile"], shaders["main"], textures["missile"], missileBoxID, bulPhys, Sounds["Explosion"], Sounds["RocketFire"]);
 	playerObj->addComponent(inputComp);
 	playerObj->setPosition(vec3(0, 0, 0));
+	playerObj->setScale(vec3(0.5, 0.5, 0.5));
 	playerObj->addComponent(new Renderer(tempObj->getChild("player")));	//adding render comp
 	playerObj->setShader(shaders["main"]);
 	playerObj->setTexture(textures["GreenShip"]);
 	playerObj->setModel(objects["ship"]);
 	playerObj->setForceRender(true);
 	playerObj->setForceNoRender(true);
-
 	
 
 	// example object
 	string testName = "test";
 	tempObj->addChild(new GameObject(testName, tempObj, objects["TestTeapot"], textures["TestSun"], shaders["main"]));	//creating object
 	tempObj->getChild(testName)->addComponent(new Renderer(tempObj->getChild(testName)));	//adding render comp
-	physicsComponent* phys = new physicsComponent(tempObj->getChild(testName), bulPhys->CreatePhysBox(btVector3(0, 0, 0), 1, AsteroidSphereID), bulPhys);
+	physicsComponent* phys = new physicsComponent(tempObj->getChild(testName), bulPhys->CreatePhysBox(btVector3(0, 0, 0), 1, AsteroidSphereID, COL_AST), bulPhys);
 	tempObj->getChild(testName)->addComponent(phys); //adding physics comp
 	tempObj->getChild(testName)->setPosition(vec3(0, 0, 0));	//changing postiion
 	tempObj->getChild(testName)->setRotation(vec3(0, 0, 0));	//change rotaion
@@ -176,6 +177,7 @@ void SpaceScene::createScene()
 	tempObj->getChild(testName)->setForceRender(true);
 
 	spawnAsteroids(tempObj);
+	spawnShips(tempObj);
 
 	//set skybox
 	//worldObject->addChild(new GameObject("skybox", worldObject, objects["cubeMesh"], skyMaterial, shaders["main"]));
@@ -392,7 +394,6 @@ void SpaceScene::setUpAudio()
 void SpaceScene::spawnAsteroids(GameObject *Node)
 {
 	//spawn asteroids in random locations maybe do a check to see if they are inside each other but maybe not
-
 	srand(time(NULL));
 
 	for (int i = 0; i < startingAsteroidCount; i++)
@@ -404,7 +405,7 @@ void SpaceScene::spawnAsteroids(GameObject *Node)
 		Node->addChild(new GameObject(name, Node, objects["asteroid" + to_string(rand() % TotalAsteroidMeshCount + 1)], textures["AM" + to_string(rand() % TotalAsteroidTextureCount + 1)], shaders["main"]));	//creating object
 		Node->getChild(name)->addComponent(new Renderer(Node->getChild(name)));	//adding render comp
 
-		physicsComponent* phys = new physicsComponent(Node->getChild(name), bulPhys->CreatePhysBox(btVector3(startingPos.x, startingPos.y, startingPos.z), 1, AsteroidSphereID), bulPhys);
+		physicsComponent* phys = new physicsComponent(Node->getChild(name), bulPhys->CreatePhysBox(btVector3(startingPos.x, startingPos.y, startingPos.z), asteroidMass, AsteroidSphereID, COL_AST), bulPhys);
 		Node->getChild(name)->addComponent(phys); //adding physics comp
 		Node->getChild(name)->setPosition(startingPos);	//changing postiion
 		Node->getChild(name)->setRotation(vec3(0, 0, 0));	//change rotaion
@@ -412,6 +413,33 @@ void SpaceScene::spawnAsteroids(GameObject *Node)
 		Node->getChild(name)->setForceRender(true);
 
 		curAsteroidCount++;
+
+		Asteroids.push_front(Node->getChild(name));
+	}
+}
+
+void SpaceScene::spawnShips(GameObject* Node)
+{
+	for (int i = 0; i < startingEnemyCount; i++)
+	{
+		string name = "ene" + to_string(curEnemyCount);
+
+		vec3 startingPos = vec3(rand() % 1000 - 500, rand() % 1000 - 500, rand() % 1000 - 500);
+
+		Node->addChild(new GameObject(name, Node, objects["ship"], textures["RedShip"], shaders["main"]));	//creating object
+		Node->getChild(name)->addComponent(new Renderer(Node->getChild(name)));	//adding render comp
+
+		physicsComponent* phys = new physicsComponent(Node->getChild(name), bulPhys->CreatePhysBox(btVector3(startingPos.x, startingPos.y, startingPos.z), enemyMass, AsteroidSphereID, COL_ENEMY), bulPhys);
+		Node->getChild(name)->addComponent(phys); //adding physics comp
+		Node->getChild(name)->setPosition(startingPos);	//changing postiion
+		Node->getChild(name)->setRotation(vec3(0, 0, 0));	//change rotaion
+		Node->getChild(name)->setScale(vec3(0.2, 0.2, 0.2));	//change scele
+		Node->getChild(name)->setForceRender(true);
+		AIComponent* AIComp = new AIComponent(Node->getChild(name), phys, playerObj);
+		Node->getChild(name)->addComponent(AIComp);
+		AIComp->assignMissile(objects["missile"], shaders["main"], textures["missile"], missileBoxID, bulPhys, Sounds["Explosion"], Sounds["RocketFire"]);
+
+		curEnemyCount++;
 
 		Asteroids.push_front(Node->getChild(name));
 	}
@@ -437,7 +465,7 @@ void SpaceScene::OrbitCamera()
 
 				float TempLen = glm::distance(playerPos, ast);
 
-				if (TempLen < MinDis && TempLen > 500)
+				if (TempLen < MinDis && TempLen > 100)
 				{
 					MinDis = TempLen;
 					curMinAst = var;
@@ -453,7 +481,7 @@ void SpaceScene::OrbitCamera()
 		//set the new camera position
 		input->setWorldPoint(curMinAst->getWorldPos());
 		//set the ship to the new position
-		playerObj->setPosition(playerPos);
+		playerObj->setPosition(playerPos - curMinAst->getWorldPos());
 	}
 	else
 	{

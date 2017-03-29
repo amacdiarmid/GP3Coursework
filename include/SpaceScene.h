@@ -8,6 +8,7 @@
 #include "GamePlayerController.h"
 //#include "OpenAL.h"
 #include "AudioClip.h"
+#include "AIComponent.h"
 
 
 struct Light {
@@ -38,6 +39,7 @@ public:
 	void setUpAudio();
 
 	void spawnAsteroids(GameObject *Node);
+	void spawnShips(GameObject* Node);
 
 	void OrbitCamera();
 
@@ -135,11 +137,17 @@ private:
 	//physic shape ID
 	int AsteroidSphereID;
 	int missileBoxID;
+	int shipBoxID;
 
 	int startingAsteroidCount;
 	int curAsteroidCount;
 	int TotalAsteroidMeshCount;
 	int TotalAsteroidTextureCount;
+	int asteroidMass = 100;
+
+	int startingEnemyCount = 1;
+	int curEnemyCount = 0;
+	int enemyMass = 1000;
 
 	//audio
 	OpenAL* audio;

@@ -247,18 +247,13 @@ void GameInputComponent::FireMissile()
 	missileCount++;
 	btVector3 FirePosition = btVector3(owner->getWorldPos().x, owner->getWorldPos().y, owner->getWorldPos().z);
 	//cout << "position " << owner->getWorldPos().x << " " << owner->getWorldPos().y << " " << owner->getWorldPos().z << endl;
-	btRigidBody* missile1 = bulPhys->CreatePhysBox(FirePosition, 1, missileShapeID);
-	missile1->setCollisionFlags(missile1->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
-
-
+	btRigidBody* missile1 = bulPhys->CreatePhysBox(FirePosition, missileMass, missileShapeID, COL_PLAYERMISSILE);
 
 	//TODO set the firce direction forward
 
 	btVector3 btForce = btVector3(playerCon->getlookAtPoint().x * FireForce, playerCon->getlookAtPoint().y * FireForce, playerCon->getlookAtPoint().z * FireForce);
 	missile1->applyForce(btForce, FirePosition);
 	missile1->setAngularVelocity(btForce);
-	missile1->setCollisionFlags(missile1->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
-
 	tempMissile->addComponent(new Renderer(owner->getChild(TempName)));	//adding render comp
 
 	physicsComponent* phys = new physicsComponent(owner->getChild(TempName), missile1, bulPhys);

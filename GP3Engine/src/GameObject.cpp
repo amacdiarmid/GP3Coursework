@@ -113,7 +113,11 @@ void GameObject::update(mat4 VPMat)
 
 	for each (string var in toBeDestroyed)
 	{
-		delete childrenList[var];
+		GameObject* tempObj = childrenList[var];
+		if (tempObj)
+		{
+			delete tempObj;
+		}
 		childrenList.erase(var);
 	}
 }

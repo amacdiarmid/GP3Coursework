@@ -7,6 +7,7 @@ missileComponent::missileComponent(GameObject *tempOwner, AudioClip* TempExp, Au
 	explosion = TempExp;
 	fire = TempFire;
 	fire->Play();
+	spawnTime = SDL_GetTicks();
 }
 
 missileComponent::~missileComponent()
@@ -15,24 +16,31 @@ missileComponent::~missileComponent()
 
 void missileComponent::update(mat4 MVPMat)
 {
-
+	if (SDL_GetTicks() - spawnTime >= LifeSpawn)
+	{
+		owner->setDestroy(true);
+	}
 }
 
 bool missileComponent::collideWithObject(GameObject* target)
 {
-	cout << "destroy " + owner->getName() << endl;
+	if (target != owner->getParent() && !owner->getParent()->getDestroy())
+	{
+		cout << "destroy " + owner->getName() << endl;
 	
-	//play audio
-	explosion->Play();
-	fire->setLocation(owner->getWorldPos());
-	fire->Stop();
+		//play audio
+		explosion->Play();
+		fire->setLocation(owner->getWorldPos());
+		fire->Stop();
 	
-	//playParticles
+		//playParticles
 	
-	//destroyTarget
-	owner->setDestroy(true);
-	target->setDestroy(true);
+		//destroyTarget
+		owner->setDestroy(true);
+		target->setDestroy(true);
 
-	return true;
+		return true;
+	}
+	
 }
 

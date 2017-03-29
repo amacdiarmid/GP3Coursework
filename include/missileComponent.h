@@ -18,4 +18,7 @@ public:
 private:
 	AudioClip* explosion;
 	AudioClip* fire;
+
+	int spawnTime;
+	int LifeSpawn = 60000;
 };
