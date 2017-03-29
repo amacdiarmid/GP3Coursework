@@ -145,7 +145,7 @@ private:
 	int TotalAsteroidTextureCount;
 	int asteroidMass = 100;
 
-	int startingEnemyCount = 1;
+	int startingEnemyCount = 5;
 	int curEnemyCount = 0;
 	int enemyMass = 1000;
 

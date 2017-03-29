@@ -69,13 +69,24 @@ GameObject::GameObject(string tempName, GameObject *tempParent)
 
 GameObject::~GameObject()
 {
+	list<GameObject*> destroyChildren;
 	for (auto const& x : childrenList)
 	{
-		delete x.second;
+		destroyChildren.push_back(x.second);	
 	}
+	for each (GameObject* var in destroyChildren)
+	{
+		delete var;
+	}
+
+	list<Component*> destroyComps;
 	for (auto const& x : componentsList)
 	{
-		delete x.second;
+		destroyComps.push_back(x.second);
+	}
+	for each (Component* var in destroyComps)
+	{
+		delete var;
 	}
 	parent->getChildrenMap()->erase(name);
 }
