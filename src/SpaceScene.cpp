@@ -118,12 +118,6 @@ void SpaceScene::createScene()
 	missileBoxID = bulPhys->CreateBoxShape(btVector3(10, 10, 10));
 	shipBoxID = bulPhys->CreateBoxShape(btVector3(15, 15, 15));
 
-	//asterois values;
-	startingAsteroidCount = 150;
-	curAsteroidCount = 0;
-	TotalAsteroidMeshCount = 0;
-	TotalAsteroidTextureCount = 0;
-
 
 	setUpCubemap();
 	setUpMeshes();
@@ -148,6 +142,7 @@ void SpaceScene::createScene()
 	tempObj = worldObject->getChild("SpaceNode"); //setting temp object for easy access
 	tempObj->setPosition(vec3(0, 0, 0));
 	tempObj->setActive(true);
+	levelNode = tempObj;
 	
 	//player
 	playerObj = new GameObject("player", tempObj, input);
@@ -164,20 +159,22 @@ void SpaceScene::createScene()
 	playerObj->setForceRender(true);
 	playerObj->setForceNoRender(true);
 	
+	
 
 	// example object
 	string testName = "test";
 	tempObj->addChild(new GameObject(testName, tempObj, objects["TestTeapot"], textures["TestSun"], shaders["main"]));	//creating object
 	tempObj->getChild(testName)->addComponent(new Renderer(tempObj->getChild(testName)));	//adding render comp
-	physicsComponent* phys = new physicsComponent(tempObj->getChild(testName), bulPhys->CreatePhysBox(btVector3(0, 0, 0), 1, AsteroidSphereID, COL_AST), bulPhys);
-	tempObj->getChild(testName)->addComponent(phys); //adding physics comp
+	//physicsComponent* phys = new physicsComponent(tempObj->getChild(testName), bulPhys->CreatePhysBox(btVector3(0, 0, 0), 1, AsteroidSphereID, COL_AST), bulPhys);
+	//tempObj->getChild(testName)->addComponent(phys); //adding physics comp
 	tempObj->getChild(testName)->setPosition(vec3(0, 0, 0));	//changing postiion
 	tempObj->getChild(testName)->setRotation(vec3(0, 0, 0));	//change rotaion
 	tempObj->getChild(testName)->setScale(vec3(1, 1, 1));	//change scele
 	tempObj->getChild(testName)->setForceRender(true);
 
-	spawnAsteroids(tempObj);
-	spawnShips(tempObj);
+	spawnAsteroidClusters();
+
+	spawnShips();
 
 	//set skybox
 	//worldObject->addChild(new GameObject("skybox", worldObject, objects["cubeMesh"], skyMaterial, shaders["main"]));
@@ -391,7 +388,82 @@ void SpaceScene::setUpAudio()
 	Sounds.insert(pair<string, AudioClip*>("Explosion", tempAudio));
 }
 
-void SpaceScene::spawnAsteroids(GameObject *Node)
+void SpaceScene::spawnAsteroidClusters()
+{
+
+
+	//set up this 3D array 
+	positionNodes.resize(3);
+	for (int i = 0; i < 3; ++i) {
+		positionNodes[i].resize(3);
+
+		for (int j = 0; j < 3; ++j)
+			positionNodes[i][j].resize(3);
+	}
+
+	//center
+	positionNodes[1][1][1] = vec3(0, 0, 0);
+	spawnAsteroids(positionNodes[1][1][1]);
+
+	//forward
+	positionNodes[2][1][1] = vec3(AsteroidSpawnBoxSize, 0, 0);
+	spawnAsteroids(positionNodes[2][1][1]);
+	//backwards
+	positionNodes[0][1][1] = vec3(-AsteroidSpawnBoxSize, 0, 0);
+	spawnAsteroids(positionNodes[0][1][1]);
+	//up
+	positionNodes[1][2][1] = vec3(0, AsteroidSpawnBoxSize, 0);
+	spawnAsteroids(positionNodes[1][2][1]);
+	//down
+	positionNodes[1][0][1] = vec3(0, -AsteroidSpawnBoxSize, 0);
+	spawnAsteroids(positionNodes[1][0][1]);
+	//right
+	positionNodes[1][1][2] = vec3(0, 0, AsteroidSpawnBoxSize);
+	spawnAsteroids(positionNodes[1][1][2]);
+	//left
+	positionNodes[1][1][0] = vec3(0, 0, -AsteroidSpawnBoxSize);
+	spawnAsteroids(positionNodes[1][1][0]);
+
+	//forwards up
+	positionNodes[2][2][1] = vec3(AsteroidSpawnBoxSize, AsteroidSpawnBoxSize, 0);
+	spawnAsteroids(positionNodes[2][2][1]);
+	//forwards up right
+	positionNodes[2][2][2] = vec3(AsteroidSpawnBoxSize, AsteroidSpawnBoxSize, AsteroidSpawnBoxSize);
+	spawnAsteroids(positionNodes[2][2][2]);
+	//forwards up left
+	positionNodes[2][2][0] = vec3(AsteroidSpawnBoxSize, AsteroidSpawnBoxSize, -AsteroidSpawnBoxSize);
+	spawnAsteroids(positionNodes[2][2][0]);
+	//forwards down
+	positionNodes[2][0][1] = vec3(AsteroidSpawnBoxSize, -AsteroidSpawnBoxSize, 0);
+	spawnAsteroids(positionNodes[2][0][1]);
+	//forwards down right
+	positionNodes[2][0][2] = vec3(AsteroidSpawnBoxSize, -AsteroidSpawnBoxSize, AsteroidSpawnBoxSize);
+	spawnAsteroids(positionNodes[2][0][2]);
+	//forwards down left
+	positionNodes[2][0][0] = vec3(AsteroidSpawnBoxSize, -AsteroidSpawnBoxSize, -AsteroidSpawnBoxSize);
+	spawnAsteroids(positionNodes[2][0][0]);
+
+	//backwards up
+	positionNodes[0][2][1] = vec3(-AsteroidSpawnBoxSize, AsteroidSpawnBoxSize, 0);
+	spawnAsteroids(positionNodes[0][2][1]);
+	//backwards up right
+	positionNodes[0][2][2] = vec3(-AsteroidSpawnBoxSize, AsteroidSpawnBoxSize, AsteroidSpawnBoxSize);
+	spawnAsteroids(positionNodes[0][2][2]);
+	//backwards up left
+	positionNodes[0][2][0] = vec3(-AsteroidSpawnBoxSize, AsteroidSpawnBoxSize, -AsteroidSpawnBoxSize);
+	spawnAsteroids(positionNodes[0][2][0]);
+	//backwards down
+	positionNodes[0][0][1] = vec3(-AsteroidSpawnBoxSize, -AsteroidSpawnBoxSize, 0);
+	spawnAsteroids(positionNodes[0][0][1]);
+	//backwards down right
+	positionNodes[0][0][2] = vec3(-AsteroidSpawnBoxSize, -AsteroidSpawnBoxSize, AsteroidSpawnBoxSize);
+	spawnAsteroids(positionNodes[0][0][2]);
+	//backwards down left
+	positionNodes[0][0][0] = vec3(-AsteroidSpawnBoxSize, -AsteroidSpawnBoxSize, -AsteroidSpawnBoxSize);
+	spawnAsteroids(positionNodes[0][0][0]);
+}
+
+void SpaceScene::spawnAsteroids(vec3 location)
 {
 	//spawn asteroids in random locations maybe do a check to see if they are inside each other but maybe not
 	srand(time(NULL));
@@ -400,48 +472,55 @@ void SpaceScene::spawnAsteroids(GameObject *Node)
 	{
 		string name = "ast" + to_string(curAsteroidCount);
 
-		vec3 startingPos = vec3(rand() % 1000 - 500, rand() % 1000 - 500, rand() % 1000 - 500);
+		vec3 startingPos = vec3(rand() % AsteroidSpawnBoxSize - (AsteroidSpawnBoxSize/2), rand() % AsteroidSpawnBoxSize - (AsteroidSpawnBoxSize / 2), rand() % AsteroidSpawnBoxSize - (AsteroidSpawnBoxSize / 2));
 
-		Node->addChild(new GameObject(name, Node, objects["asteroid" + to_string(rand() % TotalAsteroidMeshCount + 1)], textures["AM" + to_string(rand() % TotalAsteroidTextureCount + 1)], shaders["main"]));	//creating object
-		Node->getChild(name)->addComponent(new Renderer(Node->getChild(name)));	//adding render comp
+		vec3 spawnPos = vec3(startingPos.x + location.x, startingPos.y + location.y, startingPos.z + location.z);
 
-		physicsComponent* phys = new physicsComponent(Node->getChild(name), bulPhys->CreatePhysBox(btVector3(startingPos.x, startingPos.y, startingPos.z), asteroidMass, AsteroidSphereID, COL_AST), bulPhys);
-		Node->getChild(name)->addComponent(phys); //adding physics comp
-		Node->getChild(name)->setPosition(startingPos);	//changing postiion
-		Node->getChild(name)->setRotation(vec3(0, 0, 0));	//change rotaion
-		Node->getChild(name)->setScale(vec3(1, 1, 1));	//change scele
-		Node->getChild(name)->setForceRender(true);
+		levelNode->addChild(new GameObject(name, levelNode, objects["asteroid" + to_string(rand() % TotalAsteroidMeshCount + 1)], textures["AM" + to_string(rand() % TotalAsteroidTextureCount + 1)], shaders["main"]));	//creating object
+		levelNode->getChild(name)->addComponent(new Renderer(levelNode->getChild(name)));	//adding render comp
+
+		physicsComponent* phys = new physicsComponent(levelNode->getChild(name), bulPhys->CreatePhysBox(btVector3(spawnPos.x, spawnPos.y, spawnPos.z), asteroidMass, AsteroidSphereID, COL_AST), bulPhys);
+		levelNode->getChild(name)->addComponent(phys); //adding physics comp
+		levelNode->getChild(name)->setPosition(spawnPos);	//changing postiion
+		levelNode->getChild(name)->setRotation(vec3(0, 0, 0));	//change rotaion
+		levelNode->getChild(name)->setScale(vec3(1, 1, 1));	//change scele
+		levelNode->getChild(name)->setForceRender(true);
 
 		curAsteroidCount++;
 
-		Asteroids.push_front(Node->getChild(name));
+		AsteroidComponent* AstComp = new AsteroidComponent(levelNode->getChild(name), playerObj);
+		levelNode->getChild(name)->addComponent(AstComp);
+
+		Asteroids.push_front(levelNode->getChild(name));
 	}
 }
 
-void SpaceScene::spawnShips(GameObject* Node)
+void SpaceScene::spawnShips()
 {
+	Ships.clear();
 	for (int i = 0; i < startingEnemyCount; i++)
 	{
 		string name = "ene" + to_string(curEnemyCount);
 
-		vec3 startingPos = vec3(rand() % 1000 - 500, rand() % 1000 - 500, rand() % 1000 - 500);
+		vec3 startingPos = vec3(rand() % (2000 - 1000) - 1000, rand() % (2000 - 1000) - 1000, rand() % (2000 - 1000) - 1000);
 
-		Node->addChild(new GameObject(name, Node, objects["ship"], textures["RedShip"], shaders["main"]));	//creating object
-		Node->getChild(name)->addComponent(new Renderer(Node->getChild(name)));	//adding render comp
+		levelNode->addChild(new GameObject(name, levelNode, objects["ship"], textures["RedShip"], shaders["main"]));	//creating object
+		levelNode->getChild(name)->addComponent(new Renderer(levelNode->getChild(name)));	//adding render comp
 
-		physicsComponent* phys = new physicsComponent(Node->getChild(name), bulPhys->CreatePhysBox(btVector3(startingPos.x, startingPos.y, startingPos.z), enemyMass, AsteroidSphereID, COL_ENEMY), bulPhys);
-		Node->getChild(name)->addComponent(phys); //adding physics comp
-		Node->getChild(name)->setPosition(startingPos);	//changing postiion
-		Node->getChild(name)->setRotation(vec3(0, 0, 0));	//change rotaion
-		Node->getChild(name)->setScale(vec3(0.2, 0.2, 0.2));	//change scele
-		Node->getChild(name)->setForceRender(true);
-		AIComponent* AIComp = new AIComponent(Node->getChild(name), phys, playerObj);
-		Node->getChild(name)->addComponent(AIComp);
+		btRigidBody* body = bulPhys->CreatePhysBox(btVector3(startingPos.x, startingPos.y, startingPos.z), enemyMass, AsteroidSphereID, COL_ENEMY);
+		physicsComponent* phys = new physicsComponent(levelNode->getChild(name), body, bulPhys);
+		levelNode->getChild(name)->addComponent(phys); //adding physics comp
+		levelNode->getChild(name)->setPosition(startingPos);	//changing postiion
+		levelNode->getChild(name)->setRotation(vec3(0, 0, 0));	//change rotaion
+		levelNode->getChild(name)->setScale(vec3(0.2, 0.2, 0.2));	//change scele
+		levelNode->getChild(name)->setForceRender(true);
+		AIComponent* AIComp = new AIComponent(levelNode->getChild(name), phys, playerObj, &curEnemyCount);
+		levelNode->getChild(name)->addComponent(AIComp);
 		AIComp->assignMissile(objects["missile"], shaders["main"], textures["missile"], missileBoxID, bulPhys, Sounds["Explosion"], Sounds["RocketFire"]);
 
 		curEnemyCount++;
 
-		Asteroids.push_front(Node->getChild(name));
+		Ships.push_front(levelNode->getChild(name));
 	}
 }
 

@@ -1,11 +1,12 @@
 #include "AIComponent.h"
 
-AIComponent::AIComponent(GameObject * tempOwner, physicsComponent * TempPhys, GameObject* TempTarget)
+AIComponent::AIComponent(GameObject * tempOwner, physicsComponent * TempPhys, GameObject* TempTarget, int* totalShips)
 {
 	type = "AI component";
 	owner = tempOwner;
 	phys = TempPhys->getRB();
 	target = TempTarget;
+	refToTotalShips = totalShips;
 }
 
 AIComponent::~AIComponent()
@@ -18,18 +19,21 @@ void AIComponent::update(mat4 MVPMat)
 	vec3 pos = owner->getWorldPos();
 	vec3 dir = (target->getWorldPos() - owner->getWorldPos()) * Speed;
 
-	phys->applyForce(btVector3(dir.x, dir.y, dir.z), btVector3(pos.x, pos.y, pos.z));
+	
 
 	float dis = distance(target->getWorldPos(), owner->getWorldPos());
 	if (dis < fireMissileDistance)
 	{
-		//phys->applyImpulse(-phys->getTotalForce(), btVector3(pos.x, pos.y, pos.z));
 		if (CanFire)
 		{
 			CanFire = false;
 			TickOnFire = SDL_GetTicks();
 			FireMissile();
 		}
+	}
+	else
+	{
+		phys->applyForce(btVector3(dir.x, dir.y, dir.z), btVector3(pos.x, pos.y, pos.z));
 	}
 	if (SDL_GetTicks() - TickOnFire >= missileFireRate && !CanFire)
 	{

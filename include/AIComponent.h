@@ -7,7 +7,7 @@
 class AIComponent : public Component
 {
 public:
-	AIComponent(GameObject *tempOwner, physicsComponent* TempPhys, GameObject* TempTarget);
+	AIComponent(GameObject *tempOwner, physicsComponent* TempPhys, GameObject* TempTarget, int* totalShips);
 	~AIComponent();
 
 	void update(mat4 MVPMat) override;
@@ -38,4 +38,6 @@ private:
 	AudioClip* ExpAudio;
 	AudioClip* FireAudio;
 	BulletPhys* bulPhys;
+
+	int* refToTotalShips;
 };

@@ -20,7 +20,7 @@ GameInputComponent::GameInputComponent(GameObject *tempOwner)
 	StickDeadZone = 10000;
 	curX = 0;
 	curY = 0;
-	controllerSensitivity = 10;
+	controllerSensitivity = 5;
 }
 
 
@@ -141,6 +141,7 @@ void GameInputComponent::mouseUp(SDL_MouseButtonEvent button)
 
 void GameInputComponent::joyMove(SDL_ControllerAxisEvent motion)
 {
+	float val;
 	switch (motion.axis)
 	{
 	case SDL_CONTROLLER_AXIS_TRIGGERRIGHT:
@@ -170,7 +171,8 @@ void GameInputComponent::joyMove(SDL_ControllerAxisEvent motion)
 	case SDL_CONTROLLER_AXIS_RIGHTX:
 		if (motion.value > StickDeadZone || motion.value < -StickDeadZone)
 		{
-			curX = motion.value / 32767;
+			val = motion.value;
+			curX = val / 32767;
 			ControllerAimX = true;
 		}
 		else
@@ -182,14 +184,15 @@ void GameInputComponent::joyMove(SDL_ControllerAxisEvent motion)
 	case SDL_CONTROLLER_AXIS_RIGHTY:
 		if (motion.value > StickDeadZone || motion.value < -StickDeadZone)
 		{
-			curY = motion.value / 32767;
+			val = motion.value;
+			curY = val / 32767;
 			ControllerAimY = true;
 		}
 		else
 		{
 			ControllerAimY = false;
 		}
-		//cout << "right Y value " << to_string(curY) << endl;
+		cout << "right Y value " << to_string(curY) << endl;
 		break;
 	default:
 		break;

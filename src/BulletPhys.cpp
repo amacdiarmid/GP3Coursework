@@ -105,7 +105,6 @@ btRigidBody* BulletPhys::CreatePhysBox(btVector3 StartPos, float TempMass, int I
 	btRigidBody* body = new btRigidBody(rbInfo);
 
 
-	//TODO set groups for adding bodies
 	switch (Group)
 	{
 	case COL_NOTHING:
@@ -208,6 +207,8 @@ void BulletPhys::updatePhysics()
 			}
 		}	
 	}
+
+	dynamicsWorld->clearForces();
 }
 
 btRigidBody* BulletPhys::getRidgidBody(int ID)

@@ -9,6 +9,7 @@
 //#include "OpenAL.h"
 #include "AudioClip.h"
 #include "AIComponent.h"
+#include "AsteroidComponent.h"
 
 
 struct Light {
@@ -38,8 +39,9 @@ public:
 	void setUpCubemap();
 	void setUpAudio();
 
-	void spawnAsteroids(GameObject *Node);
-	void spawnShips(GameObject* Node);
+	void spawnAsteroidClusters();
+	void spawnAsteroids(vec3 location);
+	void spawnShips();
 
 	void OrbitCamera();
 
@@ -139,11 +141,12 @@ private:
 	int missileBoxID;
 	int shipBoxID;
 
-	int startingAsteroidCount;
-	int curAsteroidCount;
-	int TotalAsteroidMeshCount;
-	int TotalAsteroidTextureCount;
+	int startingAsteroidCount = 100;
+	int curAsteroidCount = 0;
+	int TotalAsteroidMeshCount = 0;
+	int TotalAsteroidTextureCount = 0;
 	int asteroidMass = 100;
+	int AsteroidSpawnBoxSize = 1000;
 
 	int startingEnemyCount = 5;
 	int curEnemyCount = 0;
@@ -154,10 +157,15 @@ private:
 	map<string, AudioClip*> Sounds;
 
 	list<GameObject*> Asteroids;
+	list<GameObject*> Ships;
 
 	GameInputComponent *inputComp;
 	vec3 playerPos;
 	GameObject* playerObj;
+	GameObject* levelNode;
+
+	//super spooky 3D array
+	vector<vector<vector<vec3>>> positionNodes;
 };
 
 #endif
