@@ -38,6 +38,8 @@ public:
 	void setUpTextures();
 	void setUpCubemap();
 	void setUpAudio();
+	void setUpLights();
+
 
 	void spawnAsteroidClusters();
 	void spawnAsteroids(vec3 location);

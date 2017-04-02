@@ -92,6 +92,11 @@ void SpaceScene::update()
 	{
 		spawnShips();
 	}
+
+
+	gLight.position = glm::vec3(playerObj->getWorldPos().x, playerObj->getWorldPos().y, playerObj->getWorldPos().z);
+	gLightPosLoc = glGetUniformLocation(shaders["main"]->getShader(), "light.position");
+	CHECK_GL_ERROR();
 }
 
 void SpaceScene::createScene()
@@ -199,8 +204,8 @@ void SpaceScene::createScene()
 	}
 
 	materialShininess = 100;
-	gLight.position = glm::vec3(0, 130, 0);
 	gLight.intensities = glm::vec3(1.0f, 1.0f, 1.0f); //white
+	gLight.position = glm::vec3(0, 0, 0);
 	gLight.attenuation = 1.0f;
 	gLight.ambientCoefficient = 0.305f;
 
@@ -208,23 +213,16 @@ void SpaceScene::createScene()
 
 	textureSamplerLocation = glGetUniformLocation(shaderID, "texture0");
 	MVPLocation = glGetUniformLocation(shaderID, "MVP");
-	materialShininessLoc = glGetUniformLocation(shaderID, "materialShininess");
-	materialSPecularLoc = glGetUniformLocation(shaderID, "materialSpecularColor");
-	gLightPosLoc = glGetUniformLocation(shaderID, "light.position");
-	gLightIntensitiesLoc = glGetUniformLocation(shaderID, "light.intensities");
-	gLightAttenuationLoc = glGetUniformLocation(shaderID, "light.attenuation");
-	gLightAmbientCoeLoc = glGetUniformLocation(shaderID, "light.ambientCoefficient");
+	materialShininessLoc = glGetUniformLocation(shaderID, "Material.shininess");
+	materialSPecularLoc = glGetUniformLocation(shaderID, "Material.specular");
+	gLightPosLoc = glGetUniformLocation(shaderID, "Light.position");
+	gLightIntensitiesLoc = glGetUniformLocation(shaderID, "Light.diffuse");
+	gLightAttenuationLoc = glGetUniformLocation(shaderID, "Light.specular");
+	gLightAmbientCoeLoc = glGetUniformLocation(shaderID, "Light.ambient");
 	cameraPosLoc = glGetUniformLocation(shaderID, "cameraPosition");
-	//viewLocation = glGetUniformLocation(shaderID, "V");
 	modelLocation = glGetUniformLocation(shaderID, "M");
-	//depthBiasLocation = glGetUniformLocation(shaderID, "DepthBiasMVP");
-	//shadowMapLocation = glGetUniformLocation(shaderID, "shadowMap");
-	//lightLocation = glGetUniformLocation(shaderID, "LightInvDirection");
-	//lightId = glGetUniformLocation(shaderID, "LightPosition_worldspace");
-
 	CHECK_GL_ERROR();
 }
-
 
 void SpaceScene::UpdateLightPerspMVP()
 {
