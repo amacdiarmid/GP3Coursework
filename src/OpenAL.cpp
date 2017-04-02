@@ -11,11 +11,6 @@ OpenAL::OpenAL()
 
 OpenAL::~OpenAL()
 {
-	/*contextAL = alcGetCurrentContext();
-	deviceAL = alcGetContextsDevice(contextAL);
-	alcMakeContextCurrent(NULL);
-	alcDestroyContext(contextAL);
-	alcCloseDevice(deviceAL);*/
 	alutExit();
 }
 
@@ -36,5 +31,34 @@ void OpenAL::toggleMute()
 	{
 		alListenerf(AL_GAIN, 0);
 		curVolume = 0;
+	}
+}
+
+ALuint OpenAL::CreateBuffer(string modelPath)
+{
+	string Path = ASSET_PATH + AUDIO_PATH + modelPath;
+
+	if ((error = alGetError()) != AL_NO_ERROR)
+	{
+		cout << alGetString(error) << endl;
+	}
+
+	ALuint buffer;
+	buffer = alutCreateBufferFromFile(Path.c_str());
+
+	if ((error = alutGetError()) != AL_NO_ERROR)
+	{
+		cout << alutGetErrorString(error) << endl;
+	}
+	return buffer;
+}
+
+void OpenAL::updateAudio(vec3 position)
+{
+	ALfloat listenerPos[] = { position.x, position.y, position.z };
+	alListenerfv(AL_POSITION, listenerPos);
+	if ((error = alutGetError()) != AL_NO_ERROR)
+	{
+		cout << alutGetErrorString(error) << endl;
 	}
 }

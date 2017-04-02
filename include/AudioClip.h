@@ -5,11 +5,10 @@
 class AudioClip
 {
 public:
-	AudioClip();
+	AudioClip(ALuint Buffer);
 	~AudioClip();
 
-	void CreateBuffer(string modelPath);
-	void Play();
+	void Play(float volume, vec3 position);
 	void Stop();
 	void setLooping(bool loop);
 	void setLocation(vec3 pos);

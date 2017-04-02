@@ -76,8 +76,6 @@ void SpaceScene::update()
 {
 	GLenum err = GL_NO_ERROR;
 	input->Update();
-
-	bulPhys->updatePhysics();
 	
 	worldObject->update(input->getMVPmatrix());
 
@@ -148,7 +146,7 @@ void SpaceScene::createScene()
 	playerObj = new GameObject("player", tempObj, input);
 	tempObj->addChild(playerObj);
 	inputComp = new GameInputComponent(tempObj->getChild("player"));
-	inputComp->assignMissile(objects["missile"], shaders["main"], textures["missile"], missileBoxID, bulPhys, Sounds["Explosion"], Sounds["RocketFire"]);
+	inputComp->assignMissile(objects["missile"], shaders["main"], textures["missile"], missileBoxID, bulPhys, new AudioClip(Sounds["Explosion"]), new AudioClip(Sounds["RocketFire"]));
 	playerObj->addComponent(inputComp);
 	playerObj->setPosition(vec3(0, 0, 0));
 	playerObj->setScale(vec3(0.5, 0.5, 0.5));
@@ -246,16 +244,15 @@ void SpaceScene::destroyScene()
 	{
 		x.second->cleanUp();
 	}
-	for (auto const& x : Sounds)
-	{
-		delete x.second;
-	}
+	delete BackgroundAudio;
 	delete audio;
 }
 
 void SpaceScene::SceneLoop()
 {
 	windowLoop();
+	audio->updateAudio(playerObj->getWorldPos());
+	bulPhys->updatePhysics();
 	update();
 	render();
 }
@@ -357,35 +354,49 @@ void SpaceScene::setUpAudio()
 {
 	//audio
 	ALenum  error;
-
+	if ((error = alutGetError()) != AL_NO_ERROR)
+	{
+		cout << alutGetErrorString(error) << endl;
+	}
 	audio = new OpenAL();
-	
-	AudioClip* tempAudio;
+	if ((error = alutGetError()) != AL_NO_ERROR)
+	{
+		cout << alutGetErrorString(error) << endl;
+	}
 
 	//background 
-	tempAudio = new AudioClip();
-	tempAudio->CreateBuffer("/SpacialHarvest.wav");
-	tempAudio->setLooping(TRUE);
-	tempAudio->Play();
-	Sounds.insert(pair<string, AudioClip*>("backgroundAudio", tempAudio));
+	Sounds.insert(pair<string, ALuint>("backgroundAudio", audio->CreateBuffer("/SpacialHarvest.wav")));
 
 	//ship 
-	tempAudio = new AudioClip();
-	tempAudio->CreateBuffer("/sergeniousShip.wav");
-	tempAudio->setLooping(FALSE);
-	Sounds.insert(pair<string, AudioClip*>("ShipAudio", tempAudio));
+	Sounds.insert(pair<string, ALuint>("ShipAudio", audio->CreateBuffer("/sergeniousShip.wav")));
 
 	//rocket 
-	tempAudio = new AudioClip();
-	tempAudio->CreateBuffer("/rocket-shoot.wav");
-	tempAudio->setLooping(TRUE);
-	Sounds.insert(pair<string, AudioClip*>("RocketFire", tempAudio));
+	Sounds.insert(pair<string, ALuint>("RocketFire", audio->CreateBuffer("/rocket-shoot.wav")));
 
 	//explosion 
-	tempAudio = new AudioClip();
-	tempAudio->CreateBuffer("/explosion-01.wav");
-	tempAudio->setLooping(FALSE);
-	Sounds.insert(pair<string, AudioClip*>("Explosion", tempAudio));
+	Sounds.insert(pair<string, ALuint>("Explosion", audio->CreateBuffer("/explosion-01.wav")));
+	if ((error = alutGetError()) != AL_NO_ERROR)
+	{
+		cout << alutGetErrorString(error) << endl;
+	}
+
+	BackgroundAudio = new AudioClip(Sounds["backgroundAudio"]);
+	if ((error = alutGetError()) != AL_NO_ERROR)
+	{
+		cout << alutGetErrorString(error) << endl;
+	}
+
+	BackgroundAudio->Play(1.0f, vec3(0, 0, 0));
+	if ((error = alutGetError()) != AL_NO_ERROR)
+	{
+		cout << alutGetErrorString(error) << endl;
+	}
+
+	BackgroundAudio->setLooping(true);
+	if ((error = alutGetError()) != AL_NO_ERROR)
+	{
+		cout << alutGetErrorString(error) << endl;
+	}
 }
 
 void SpaceScene::spawnAsteroidClusters()
@@ -516,7 +527,7 @@ void SpaceScene::spawnShips()
 		levelNode->getChild(name)->setForceRender(true);
 		AIComponent* AIComp = new AIComponent(levelNode->getChild(name), phys, playerObj, &curEnemyCount);
 		levelNode->getChild(name)->addComponent(AIComp);
-		AIComp->assignMissile(objects["missile"], shaders["main"], textures["missile"], missileBoxID, bulPhys, Sounds["Explosion"], Sounds["RocketFire"]);
+		AIComp->assignMissile(objects["missile"], shaders["main"], textures["missile"], missileBoxID, bulPhys, new AudioClip(Sounds["Explosion"]), new AudioClip(Sounds["RocketFire"]));
 
 		curEnemyCount++;
 

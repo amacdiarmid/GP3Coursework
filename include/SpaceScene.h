@@ -154,7 +154,8 @@ private:
 
 	//audio
 	OpenAL* audio;
-	map<string, AudioClip*> Sounds;
+	map<string, ALuint> Sounds;
+	AudioClip* BackgroundAudio;
 
 	list<GameObject*> Asteroids;
 	list<GameObject*> Ships;

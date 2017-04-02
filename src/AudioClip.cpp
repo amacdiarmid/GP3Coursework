@@ -1,29 +1,12 @@
 #include "AudioClip.h"
 
-AudioClip::AudioClip()
+AudioClip::AudioClip(ALuint Buffer)
 {
-
-}
-
-AudioClip::~AudioClip()
-{
-
-}
-
-void AudioClip::CreateBuffer(string modelPath)
-{
-	string Path = ASSET_PATH + AUDIO_PATH + modelPath;
+	AudioBuffer = Buffer;
 
 	if ((error = alGetError()) != AL_NO_ERROR)
 	{
 		cout << alGetString(error) << endl;
-	}
-
-	AudioBuffer = alutCreateBufferFromFile(Path.c_str());
-
-	if ((error = alutGetError()) != AL_NO_ERROR)
-	{
-		cout << alutGetErrorString(error) << endl;
 	}
 
 	alGenSources(1, &AudioSource);
@@ -37,13 +20,35 @@ void AudioClip::CreateBuffer(string modelPath)
 	{
 		cout << alutGetErrorString(error) << endl;
 	}
-	
 }
 
-void AudioClip::Play()
+AudioClip::~AudioClip()
 {
-	alSourcePlay(AudioSource);
+	Stop();
+	alDeleteSources(1, &AudioSource);
+}
 
+void AudioClip::Play(float volume, vec3 position)
+{
+	if ((error = alGetError()) != AL_NO_ERROR)
+	{
+		cout << alGetString(error) << endl;
+	}
+
+	ALfloat listenerPos[] = { position.x, position.y, position.z };
+	alSourcefv(AudioSource, AL_POSITION, listenerPos);
+	if ((error = alGetError()) != AL_NO_ERROR)
+	{
+		cout << alGetString(error) << endl;
+	}
+
+	alSourcef(AudioSource, AL_GAIN, volume);
+	if ((error = alGetError()) != AL_NO_ERROR)
+	{
+		cout << alGetString(error) << endl;
+	}
+
+	alSourcePlay(AudioSource);
 	if ((error = alGetError()) != AL_NO_ERROR)
 	{
 		cout << alGetString(error) << endl;

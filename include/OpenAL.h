@@ -4,6 +4,7 @@
 #include <alc.h>
 #include <AL/alut.h>
 #include <xram.h>
+#include <Common.h>
 
 class OpenAL
 {
@@ -15,8 +16,13 @@ public:
 	ALCcontext* getContext() { return contextAL; };
 	void setVolume(int vol);
 	void toggleMute();
+	ALuint CreateBuffer(string modelPath);
+
+	void updateAudio(vec3 position);
 
 private:
+	ALenum  error;
+
 	ALCdevice* deviceAL;
 	ALCcontext* contextAL;
 
