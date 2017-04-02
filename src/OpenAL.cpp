@@ -1,5 +1,4 @@
 #include "OpenAL.h"
-#include "Common.h"
 
 OpenAL::OpenAL()
 {
@@ -60,5 +59,10 @@ void OpenAL::updateAudio(vec3 position)
 	if ((error = alutGetError()) != AL_NO_ERROR)
 	{
 		cout << alutGetErrorString(error) << endl;
+	}
+
+	for each (AudioClip* audClip in movingAudio)
+	{
+		audClip->UpdateAudioPos();
 	}
 }

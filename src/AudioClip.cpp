@@ -3,7 +3,6 @@
 AudioClip::AudioClip(ALuint Buffer)
 {
 	AudioBuffer = Buffer;
-
 	if ((error = alGetError()) != AL_NO_ERROR)
 	{
 		cout << alGetString(error) << endl;
@@ -80,6 +79,14 @@ void AudioClip::setLocation(vec3 pos)
 	if ((error = alGetError()) != AL_NO_ERROR)
 	{
 		cout << alGetString(error) << endl;
+	}
+}
+
+void AudioClip::UpdateAudioPos()
+{
+	if (owner != NULL)
+	{
+		setLocation(owner->getWorldPos());
 	}
 }
 

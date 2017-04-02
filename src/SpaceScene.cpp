@@ -1,4 +1,3 @@
-
 #include "SpaceScene.h"
 #include "Editor.h"
 #include "OpenGL.h"
@@ -70,8 +69,6 @@ void SpaceScene::render()
 	CHECK_GL_ERROR();
 }
 
-
-
 void SpaceScene::update()
 {
 	GLenum err = GL_NO_ERROR;
@@ -90,6 +87,11 @@ void SpaceScene::update()
 
 	UpdateLightPerspMVP();
 	depthBias = biasMatrix * depthMVP;
+
+	if (SDL_GetTicks() - lastWaveSpawnTimer >= spawnTimerForEnenyWaves)
+	{
+		spawnShips();
+	}
 }
 
 void SpaceScene::createScene()
@@ -146,7 +148,12 @@ void SpaceScene::createScene()
 	playerObj = new GameObject("player", tempObj, input);
 	tempObj->addChild(playerObj);
 	inputComp = new GameInputComponent(tempObj->getChild("player"));
-	inputComp->assignMissile(objects["missile"], shaders["main"], textures["missile"], missileBoxID, bulPhys, new AudioClip(Sounds["Explosion"]), new AudioClip(Sounds["RocketFire"]));
+
+	AudioClip* explosion = new AudioClip(Sounds["Explosion"]);
+	AudioClip* RockitFire = new AudioClip(Sounds["RocketFire"]);
+	audio->AddmovingAudio(RockitFire);
+	inputComp->assignMissile(objects["missile"], shaders["main"], textures["missile"], missileBoxID, bulPhys, explosion, RockitFire);
+	
 	playerObj->addComponent(inputComp);
 	playerObj->setPosition(vec3(0, 0, 0));
 	playerObj->setScale(vec3(0.5, 0.5, 0.5));
@@ -508,6 +515,8 @@ void SpaceScene::spawnAsteroids(vec3 location)
 
 void SpaceScene::spawnShips()
 {
+	lastWaveSpawnTimer = SDL_GetTicks();
+
 	Ships.clear();
 	for (int i = 0; i < startingEnemyCount; i++)
 	{
@@ -527,7 +536,11 @@ void SpaceScene::spawnShips()
 		levelNode->getChild(name)->setForceRender(true);
 		AIComponent* AIComp = new AIComponent(levelNode->getChild(name), phys, playerObj, &curEnemyCount);
 		levelNode->getChild(name)->addComponent(AIComp);
-		AIComp->assignMissile(objects["missile"], shaders["main"], textures["missile"], missileBoxID, bulPhys, new AudioClip(Sounds["Explosion"]), new AudioClip(Sounds["RocketFire"]));
+
+		AudioClip* explosion = new AudioClip(Sounds["Explosion"]);
+		AudioClip* RockitFire = new AudioClip(Sounds["RocketFire"]);
+		audio->AddmovingAudio(RockitFire);
+		AIComp->assignMissile(objects["missile"], shaders["main"], textures["missile"], missileBoxID, bulPhys, explosion, RockitFire);
 
 		curEnemyCount++;
 

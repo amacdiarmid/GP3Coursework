@@ -6,7 +6,7 @@
 #include "physicsComponent.h"
 #include "GameInputComponent.h"
 #include "GamePlayerController.h"
-//#include "OpenAL.h"
+#include "OpenAL.h"
 #include "AudioClip.h"
 #include "AIComponent.h"
 #include "AsteroidComponent.h"
@@ -165,8 +165,12 @@ private:
 	GameObject* playerObj;
 	GameObject* levelNode;
 
-	//super spooky 3D array
+	//super spooky 3D array for spawning clusters of asteroids
+	//was initially used for infinite world generation but didnt work
 	vector<vector<vector<vec3>>> positionNodes;
+
+	int spawnTimerForEnenyWaves = 30000;
+	int lastWaveSpawnTimer;
 };
 
 #endif

@@ -50,7 +50,7 @@ private:
 	//missile cound 
 	int missileCount;
 	int FireForce;
-	float missileFireRate = 3000;
+	float missileFireRate = 2000;
 	bool CanFire = true;
 	int TickOnFire;
 	int missileMass = 1;
