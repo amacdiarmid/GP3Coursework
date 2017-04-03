@@ -101,9 +101,10 @@ private:
 	vec2 screenResolution = vec2(FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 	GLuint lightId;
 
-	float materialShininess = 100;
 	vec3 materialSpecularColor = vec3(0.3f, 0.3f, 0.3f);
 	
+
+	//lights i dont know what most of this does help plz
 	Light gLight;
 
 	GLenum 	err = GL_NO_ERROR;
@@ -118,17 +119,39 @@ private:
 	GLuint gLightIntensitiesLoc;
 	GLuint gLightAttenuationLoc;
 	GLuint gLightAmbientCoeLoc;
-	GLuint cameraPosLoc;
 
-	vec3 lightDirection = vec3(0.0f, 0.0f, 1.0f);
-	vec4 ambientMaterialColor = vec4(0.3f, 0.3f, 0.3f, 1.0f);
-	vec4 ambientLightColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	vec4 diffuseMaterialColor = vec4(0.3f, 0.3f, 0.3f, 1.0f);
-	vec4 diffuseLightColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	vec3 cameraPosition = vec3(15.0f, 50.0f, 50.0f);
-	vec4 specularMaterialColor = vec4(0.3f, 0.3f, 0.3f, 1.0f);
-	GLfloat specularPower = 100;
-	vec4 specularLightColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	//camera look direction set everyframe
+	vec3 lightDirection;
+	GLuint lightDirLoc;
+	//CamPos set every frame
+	vec3 lightPos;
+	GLuint lightPosLoc;
+	//mat colour silver
+	vec3 ambientMaterialColor = vec3(0.75f, 0.75f, 0.75f);
+	GLuint ambientMatLoc;
+	//light colour orange
+	vec3 ambientLightColor = vec3(1.0f, 0.5f, 0.0f);
+	GLuint ambientLightLoc;
+	//diff mat colur silver
+	vec3 diffuseMaterialColor = vec3(0.75f, 0.75f, 0.75f);
+	GLuint diffuseMatLoc;
+	//diff mat light orange
+	vec3 diffuseLightColor = vec3(1.0f, 0.5f, 0.0f);
+	GLuint diffuseLightLoc;
+	//spec mat colour silver
+	vec3 specularMaterialColor = vec3(0.75f, 0.75f, 0.75f);
+	GLuint SpecMatLoc;
+	//spec Power
+	GLfloat specularPower = 10.0f;
+	GLuint specPowLoc;
+	//spec loght col orange
+	vec3 specularLightColor = vec3(1.0f, 0.5f, 0.0f);
+	GLuint specLightLoc;
+	//object Shiny
+	GLfloat materialShininess = 5;
+	GLuint matShininess;
+	
+	
 	CubeTexture* skyMaterial;
 
 	GLfloat factor = 0.5f;

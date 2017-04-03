@@ -48,17 +48,32 @@ void SpaceScene::render()
 
 	CHECK_GL_ERROR();
 	glUniformMatrix4fv(MVPLocation, 1, GL_FALSE, &input->getMVPmatrix()[0][0]);
-	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &ModelMatrix[0][0]);
-	glUniform1f(materialShininessLoc, materialShininess);
-	glUniform3f(materialSPecularLoc, materialSpecularColor.x, materialSpecularColor.y, materialSpecularColor.z);
-	glUniform3f(gLightPosLoc, gLight.position.x, gLight.position.y, gLight.position.z);
-	glUniform3f(gLightIntensitiesLoc, gLight.intensities.x, gLight.intensities.y, gLight.intensities.z);
-	glUniform1f(gLightAttenuationLoc, gLight.attenuation);
-	glUniform1f(gLightAmbientCoeLoc, gLight.ambientCoefficient);
-	glUniform3f(cameraPosLoc, input->getWorldPoint().x, input->getWorldPoint().y, input->getWorldPoint().z);
+	CHECK_GL_ERROR();
+	//glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &ModelMatrix[0][0]);
 	CHECK_GL_ERROR();
 
-	glUniform1i(textureSamplerLocation, 0);
+	glUniform3f(lightDirLoc, input->getlookAtPoint().x, input->getlookAtPoint().y, input->getlookAtPoint().z);
+	CHECK_GL_ERROR();
+	glUniform3f(lightPosLoc, playerObj->getWorldPos().x, playerObj->getWorldPos().y, playerObj->getWorldPos().z);
+	CHECK_GL_ERROR();
+	glUniform3f(ambientMatLoc, ambientMaterialColor.x, ambientMaterialColor.y, ambientMaterialColor.z);
+	CHECK_GL_ERROR();
+	glUniform3f(ambientLightLoc, ambientLightColor.x, ambientLightColor.y, ambientLightColor.z);
+	CHECK_GL_ERROR();
+	glUniform3f(diffuseMatLoc, diffuseMaterialColor.x, diffuseMaterialColor.y, diffuseMaterialColor.z);
+	CHECK_GL_ERROR();
+	glUniform3f(diffuseLightLoc, diffuseLightColor.x, diffuseLightColor.x, diffuseLightColor.x);
+	CHECK_GL_ERROR();
+	glUniform3f(SpecMatLoc, specularMaterialColor.x, specularMaterialColor.y, specularMaterialColor.y);
+	CHECK_GL_ERROR();
+	glUniform1f(specPowLoc, specularPower);
+	CHECK_GL_ERROR();
+	glUniform3f(specLightLoc, specularLightColor.x, specularLightColor.y, specularLightColor.z);
+	CHECK_GL_ERROR();
+	glUniform1f(matShininess, materialShininess);
+	CHECK_GL_ERROR();
+
+	//glUniform1i(textureSamplerLocation, 0);
 	CHECK_GL_ERROR();
 
 	glDepthMask(GL_TRUE);
@@ -209,18 +224,33 @@ void SpaceScene::createScene()
 	gLight.attenuation = 1.0f;
 	gLight.ambientCoefficient = 0.305f;
 
+	//set shader
 	GLuint shaderID = shaders["main"]->getShader();
 
-	textureSamplerLocation = glGetUniformLocation(shaderID, "texture0");
+	//get Shader locations
+	lightDirLoc = glGetUniformLocation(shaderID, "lig.direction");
+	CHECK_GL_ERROR();
+	lightPosLoc = glGetUniformLocation(shaderID, "lig.position");
+	CHECK_GL_ERROR();
+	ambientMatLoc = glGetUniformLocation(shaderID, "mat.ambientCol");
+	CHECK_GL_ERROR();
+	ambientLightLoc = glGetUniformLocation(shaderID, "lig.ambientCol");
+	CHECK_GL_ERROR();
+	diffuseMatLoc = glGetUniformLocation(shaderID, "mat.diffuseCol");
+	CHECK_GL_ERROR();
+	diffuseLightLoc = glGetUniformLocation(shaderID, "lig.diffuseCol");
+	CHECK_GL_ERROR();
+	SpecMatLoc = glGetUniformLocation(shaderID, "mat.specularCol");
+	CHECK_GL_ERROR();
+	specPowLoc = glGetUniformLocation(shaderID, "lig.SpecularPow");
+	CHECK_GL_ERROR();
+	specLightLoc = glGetUniformLocation(shaderID, "lig.specularCol");
+	CHECK_GL_ERROR();
+	matShininess = glGetUniformLocation(shaderID, "mat.shininess");
+	CHECK_GL_ERROR();
+
 	MVPLocation = glGetUniformLocation(shaderID, "MVP");
-	materialShininessLoc = glGetUniformLocation(shaderID, "Material.shininess");
-	materialSPecularLoc = glGetUniformLocation(shaderID, "Material.specular");
-	gLightPosLoc = glGetUniformLocation(shaderID, "Light.position");
-	gLightIntensitiesLoc = glGetUniformLocation(shaderID, "Light.diffuse");
-	gLightAttenuationLoc = glGetUniformLocation(shaderID, "Light.specular");
-	gLightAmbientCoeLoc = glGetUniformLocation(shaderID, "Light.ambient");
-	cameraPosLoc = glGetUniformLocation(shaderID, "cameraPosition");
-	modelLocation = glGetUniformLocation(shaderID, "M");
+
 	CHECK_GL_ERROR();
 }
 

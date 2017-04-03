@@ -56,7 +56,7 @@ void Renderer::render()
 		CHECK_GL_ERROR();
 		//get the uniform for the texture coords
 
-		GLint texture0Location = glGetUniformLocation(owner->getShader()->getShader(), "material.diffuse");//inside material strut of texture spec FS
+		GLint texture0Location = glGetUniformLocation(owner->getShader()->getShader(), "mat.text");//inside material strut of texture spec FS
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, owner->getTexture()->getTexture());
 		glUniform1i(texture0Location, 0);
