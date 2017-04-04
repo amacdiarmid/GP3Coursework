@@ -2,8 +2,10 @@
 
 OpenAL::OpenAL()
 {
+	//open AL
 	alutInit(NULL, NULL);
 
+	//get the current volume of the listener
 	alGetListenerf(AL_GAIN, &maxVolume);
 	curVolume = maxVolume;
 }
@@ -15,12 +17,14 @@ OpenAL::~OpenAL()
 
 void OpenAL::setVolume(int tempVol)
 {
+	//set the new volume 
 	alListenerf(AL_GAIN, tempVol);
 	curVolume = tempVol;
 }
 
 void OpenAL::toggleMute()
 {
+	//if 0 set colume to the last current volume if not set it to mute.
 	if (curVolume == 0)
 	{
 		alListenerf(AL_GAIN, maxVolume);
@@ -35,6 +39,7 @@ void OpenAL::toggleMute()
 
 ALuint OpenAL::CreateBuffer(string modelPath)
 {
+	//build the path to the file
 	string Path = ASSET_PATH + AUDIO_PATH + modelPath;
 
 	if ((error = alGetError()) != AL_NO_ERROR)
@@ -42,6 +47,7 @@ ALuint OpenAL::CreateBuffer(string modelPath)
 		cout << alGetString(error) << endl;
 	}
 
+	//load the file into a buffer 
 	ALuint buffer;
 	buffer = alutCreateBufferFromFile(Path.c_str());
 
@@ -54,6 +60,7 @@ ALuint OpenAL::CreateBuffer(string modelPath)
 
 void OpenAL::updateAudio(vec3 position)
 {
+	//set the location of the listener every frame
 	ALfloat listenerPos[] = { position.x, position.y, position.z };
 	alListenerfv(AL_POSITION, listenerPos);
 	if ((error = alutGetError()) != AL_NO_ERROR)
@@ -61,6 +68,7 @@ void OpenAL::updateAudio(vec3 position)
 		cout << alutGetErrorString(error) << endl;
 	}
 
+	//move the locaton of all the audio in this list. 
 	for each (AudioClip* audClip in movingAudio)
 	{
 		audClip->UpdateAudioPos();

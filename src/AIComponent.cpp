@@ -16,11 +16,12 @@ AIComponent::~AIComponent()
 
 void AIComponent::update(mat4 MVPMat)
 {
+	//get the location of the ship and ser the direction it needs to move in
 	vec3 pos = owner->getWorldPos();
 	vec3 dir = (target->getWorldPos() - owner->getWorldPos()) * Speed;
 
 	
-
+	//get the distance and if the distance is less than the range fire missile if it can
 	float dis = distance(target->getWorldPos(), owner->getWorldPos());
 	if (dis < fireMissileDistance)
 	{
@@ -33,8 +34,10 @@ void AIComponent::update(mat4 MVPMat)
 	}
 	else
 	{
+		//apply shi force
 		phys->applyForce(btVector3(dir.x, dir.y, dir.z), btVector3(pos.x, pos.y, pos.z));
 	}
+	//see if the ship can fire agian
 	if (SDL_GetTicks() - TickOnFire >= missileFireRate && !CanFire)
 	{
 		CanFire = true;

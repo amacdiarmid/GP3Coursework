@@ -87,8 +87,10 @@ void SpaceScene::render()
 void SpaceScene::update()
 {
 	GLenum err = GL_NO_ERROR;
+	//update MVP
 	input->Update();
 	
+	//update scene graph
 	worldObject->update(input->getMVPmatrix());
 
 	CHECK_GL_ERROR();
@@ -100,15 +102,17 @@ void SpaceScene::update()
 		0.5, 0.5, 0.5, 1.0
 	);
 
+	//update old postprocessing light. this code should have been removed 
 	UpdateLightPerspMVP();
 	depthBias = biasMatrix * depthMVP;
 
+	//if the time between last frame is more than 30 seconds spawn next wave
 	if (SDL_GetTicks() - lastWaveSpawnTimer >= spawnTimerForEnenyWaves)
 	{
 		spawnShips();
 	}
 
-
+	//update light position should have been removed for build 
 	gLight.position = glm::vec3(playerObj->getWorldPos().x, playerObj->getWorldPos().y, playerObj->getWorldPos().z);
 	gLightPosLoc = glGetUniformLocation(shaders["main"]->getShader(), "light.position");
 	CHECK_GL_ERROR();
@@ -129,6 +133,7 @@ void SpaceScene::createScene()
 	//editor = new Editor(this);
 	debugMode = true;
 
+	//create input
 	input = new GamePlayerController();
 
 	//bullet physics
@@ -168,12 +173,10 @@ void SpaceScene::createScene()
 	playerObj = new GameObject("player", tempObj, input);
 	tempObj->addChild(playerObj);
 	inputComp = new GameInputComponent(tempObj->getChild("player"));
-
 	AudioClip* explosion = new AudioClip(Sounds["Explosion"]);
 	AudioClip* RockitFire = new AudioClip(Sounds["RocketFire"]);
 	audio->AddmovingAudio(RockitFire);
 	inputComp->assignMissile(objects["missile"], shaders["main"], textures["missile"], missileBoxID, bulPhys, explosion, RockitFire);
-	
 	playerObj->addComponent(inputComp);
 	playerObj->setPosition(vec3(0, 0, 0));
 	playerObj->setScale(vec3(0.5, 0.5, 0.5));
@@ -198,7 +201,6 @@ void SpaceScene::createScene()
 	tempObj->getChild(testName)->setForceRender(true);
 
 	spawnAsteroidClusters();
-
 	spawnShips();
 
 	//set skybox
@@ -218,6 +220,7 @@ void SpaceScene::createScene()
 		cout << "error in creating audio " << err << endl;
 	}
 
+	//unuzed light parameters 
 	materialShininess = 100;
 	gLight.intensities = glm::vec3(1.0f, 1.0f, 1.0f); //white
 	gLight.position = glm::vec3(0, 0, 0);
@@ -351,6 +354,7 @@ void SpaceScene::setUpTextures()
 	textures.insert(pair<string, Texture*>("TestWalker", new Texture("TestWalker")));
 	textures["TestWalker"]->createTexture("/unsung-map.jpg");
 
+	//loop loading in all the asteroid textures
 	for (size_t i = 1; i < 16; i++)
 	{
 		string name = "AM" + to_string(i);
@@ -436,9 +440,7 @@ void SpaceScene::setUpAudio()
 
 void SpaceScene::spawnAsteroidClusters()
 {
-
-
-	//set up this 3D array 
+	//set up this 3D array to store asteroid cluster location
 	positionNodes.resize(3);
 	for (int i = 0; i < 3; ++i) {
 		positionNodes[i].resize(3);
@@ -447,6 +449,7 @@ void SpaceScene::spawnAsteroidClusters()
 			positionNodes[i][j].resize(3);
 	}
 
+	//spawn asteroid clusters in these locations 
 	//center
 	positionNodes[1][1][1] = vec3(0, 0, 0);
 	spawnAsteroids(positionNodes[1][1][1]);
@@ -514,17 +517,22 @@ void SpaceScene::spawnAsteroids(vec3 location)
 	//spawn asteroids in random locations maybe do a check to see if they are inside each other but maybe not
 	srand(time(NULL));
 
+	//spawn the number of asteroids for the value in the .h file 
 	for (int i = 0; i < startingAsteroidCount; i++)
 	{
+		//name th asteroid 
 		string name = "ast" + to_string(curAsteroidCount);
 
+		//random position
 		vec3 startingPos = vec3(rand() % AsteroidSpawnBoxSize - (AsteroidSpawnBoxSize/2), rand() % AsteroidSpawnBoxSize - (AsteroidSpawnBoxSize / 2), rand() % AsteroidSpawnBoxSize - (AsteroidSpawnBoxSize / 2));
 
+		//offset this positon so it is inside the cluster
 		vec3 spawnPos = vec3(startingPos.x + location.x, startingPos.y + location.y, startingPos.z + location.z);
 
+		//create game object with random mesh and random texture
 		levelNode->addChild(new GameObject(name, levelNode, objects["asteroid" + to_string(rand() % TotalAsteroidMeshCount + 1)], textures["AM" + to_string(rand() % TotalAsteroidTextureCount + 1)], shaders["main"]));	//creating object
 		levelNode->getChild(name)->addComponent(new Renderer(levelNode->getChild(name)));	//adding render comp
-
+		//add pbysics component
 		physicsComponent* phys = new physicsComponent(levelNode->getChild(name), bulPhys->CreatePhysBox(btVector3(spawnPos.x, spawnPos.y, spawnPos.z), asteroidMass, AsteroidSphereID, COL_AST), bulPhys);
 		levelNode->getChild(name)->addComponent(phys); //adding physics comp
 		levelNode->getChild(name)->setPosition(spawnPos);	//changing postiion
@@ -532,11 +540,13 @@ void SpaceScene::spawnAsteroids(vec3 location)
 		levelNode->getChild(name)->setScale(vec3(1, 1, 1));	//change scele
 		levelNode->getChild(name)->setForceRender(true);
 
+		//incrament the total number of asteroids so there arent 2 objects the same name
 		curAsteroidCount++;
 
+		//ad asteroid componet
 		AsteroidComponent* AstComp = new AsteroidComponent(levelNode->getChild(name), playerObj);
 		levelNode->getChild(name)->addComponent(AstComp);
-
+		//add to asteroid list
 		Asteroids.push_front(levelNode->getChild(name));
 	}
 }
@@ -548,13 +558,17 @@ void SpaceScene::spawnShips()
 	Ships.clear();
 	for (int i = 0; i < startingEnemyCount; i++)
 	{
+		//name 
 		string name = "ene" + to_string(curEnemyCount);
 
+		//random starting location
 		vec3 startingPos = vec3(rand() % (2000 - 1000) - 1000, rand() % (2000 - 1000) - 1000, rand() % (2000 - 1000) - 1000);
 
+		//create object
 		levelNode->addChild(new GameObject(name, levelNode, objects["ship"], textures["RedShip"], shaders["main"]));	//creating object
 		levelNode->getChild(name)->addComponent(new Renderer(levelNode->getChild(name)));	//adding render comp
 
+		//create phycics and add
 		btRigidBody* body = bulPhys->CreatePhysBox(btVector3(startingPos.x, startingPos.y, startingPos.z), enemyMass, AsteroidSphereID, COL_ENEMY);
 		physicsComponent* phys = new physicsComponent(levelNode->getChild(name), body, bulPhys);
 		levelNode->getChild(name)->addComponent(phys); //adding physics comp
@@ -562,9 +576,11 @@ void SpaceScene::spawnShips()
 		levelNode->getChild(name)->setRotation(vec3(0, 0, 0));	//change rotaion
 		levelNode->getChild(name)->setScale(vec3(0.2, 0.2, 0.2));	//change scele
 		levelNode->getChild(name)->setForceRender(true);
+		//create AI
 		AIComponent* AIComp = new AIComponent(levelNode->getChild(name), phys, playerObj, &curEnemyCount);
 		levelNode->getChild(name)->addComponent(AIComp);
 
+		//create audio clips 
 		AudioClip* explosion = new AudioClip(Sounds["Explosion"]);
 		AudioClip* RockitFire = new AudioClip(Sounds["RocketFire"]);
 		audio->AddmovingAudio(RockitFire);
@@ -582,11 +598,13 @@ void SpaceScene::spawnShips()
 //pressing the button agian will move the camera back to where it was but 
 void SpaceScene::OrbitCamera()
 {
+	//if the camera is not already fixed fix them or else un fix their position
 	if (!inputComp->getFixedCam())
 	{
 		float MinDis = 999999999;
 		GameObject* curMinAst;
 
+		//find nearest asteroid
 		playerPos = playerObj->getWorldPos();
 		for each (GameObject* var in Asteroids)
 		{
@@ -605,6 +623,7 @@ void SpaceScene::OrbitCamera()
 			}	
 		}
 
+		//set the flad to disable inout 
 		inputComp->setFixedCam(true);
 		curMinAst->setForceNoRender(true);
 		playerObj->setForceNoRender(false);
@@ -616,6 +635,7 @@ void SpaceScene::OrbitCamera()
 	}
 	else
 	{
+		//set flags to allow movement 
 		inputComp->setFixedCam(false);
 		playerObj->setForceNoRender(true);
 		for each (GameObject* var in Asteroids)

@@ -10,6 +10,7 @@ GP3Game::GP3Game()
 
 	currentScene->createScene();
 
+	//check for and enable conected controllers. 
 	SDL_GameController *controller = NULL;
 	for (int i = 0; i < SDL_NumJoysticks(); ++i) {
 		if (SDL_IsGameController(i)) {
@@ -106,6 +107,7 @@ bool GP3Game::gameLoop()
 		}
 	}
 
+	//call the scene loop
 	currentScene->SceneLoop();
 
 	return true;

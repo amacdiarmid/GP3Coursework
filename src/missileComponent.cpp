@@ -17,6 +17,7 @@ missileComponent::~missileComponent()
 
 void missileComponent::update(mat4 MVPMat)
 {
+	//if the missile has been in flight for more than the life span destroy it. 
 	if (SDL_GetTicks() - spawnTime >= LifeSpawn)
 	{
 		owner->setDestroy(true);
@@ -25,6 +26,7 @@ void missileComponent::update(mat4 MVPMat)
 
 bool missileComponent::collideWithObject(GameObject* target)
 {
+	//if the objects reference are already not taged as destroy 
 	if (target != owner->getParent() && !owner->getParent()->getDestroy())
 	{
 		cout << "destroy " + owner->getName() << endl;

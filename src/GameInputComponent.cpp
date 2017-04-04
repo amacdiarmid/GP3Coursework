@@ -30,6 +30,7 @@ GameInputComponent::~GameInputComponent()
 
 void GameInputComponent::update(mat4 MVPMat)
 {
+	//if not fixed position
 	if (!fixedCam)
 	{
 		if (moveForward)
@@ -56,6 +57,7 @@ void GameInputComponent::update(mat4 MVPMat)
 		}
 	}
 	
+	//check to see if the last time of fire has exceeded the rate of fire time
 	if (SDL_GetTicks() - TickOnFire >= missileFireRate)
 	{
 		CanFire = true;
@@ -64,6 +66,7 @@ void GameInputComponent::update(mat4 MVPMat)
 
 	owner->setPosition(owner->getInput()->getWorldPoint());
 	
+	//if the contrller outside the deadzone pass in the controller axit to the inpuit
 	if (ControllerAimX || ControllerAimY)
 	{
 		float TempX = SCREEN_WIDTH / 2;
